@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Race - 星々を巡る旅</title>
+<style>
+/* ===== Reset & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Hiragino Sans',sans-serif;background:#0a0e27;color:#fff;overflow-x:hidden}
+
+/* ===== Stars Background ===== */
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.stars canvas{width:100%;height:100%}
+
+/* ===== Header ===== */
+header{position:relative;z-index:10;text-align:center;padding:20px 10px 10px;
+  background:linear-gradient(180deg,rgba(10,14,39,.95),transparent)}
+header h1{font-size:2rem;background:linear-gradient(90deg,#ffd700,#ff6b6b,#00d4ff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;letter-spacing:.1em}
+header p{font-size:.85rem;color:#8899cc;margin-top:4px}
+
+/* ===== Top Banner ===== */
+.top-banner{position:relative;z-index:10;text-align:center;padding:8px;
+  background:linear-gradient(90deg,rgba(255,215,0,.15),rgba(255,215,0,.05));
+  border-bottom:1px solid rgba(255,215,0,.3)}
+.top-banner .crown{font-size:1.4rem}
+.top-banner .leader-name{font-size:1.1rem;font-weight:bold;color:#ffd700;margin:0 8px}
+.top-banner .leader-pts{font-size:.85rem;color:#ccaa44}
+
+/* ===== Layout ===== */
+.app-container{position:relative;z-index:10;display:flex;flex-wrap:wrap;gap:10px;padding:10px;max-width:1400px;margin:0 auto}
+.map-section{flex:1 1 70%;min-width:320px}
+.ranking-section{flex:1 1 25%;min-width:280px;max-width:380px}
+
+/* ===== Map ===== */
+.map-container{position:relative;background:radial-gradient(ellipse at 30% 40%,#1a1040 0%,#0a0e27 60%,#050818 100%);
+  border-radius:16px;border:1px solid rgba(100,120,255,.2);overflow:hidden;padding:20px;min-height:520px}
+.map-container::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+  background:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1200&q=30') center/cover no-repeat;
+  opacity:.12;pointer-events:none}
+
+/* Track */
+.track{position:relative;width:100%;height:480px}
+.track-path{position:absolute;top:0;left:0;width:100%;height:100%}
+
+/* Ship (koma) */
+.ship{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;
+  transition:all 1.5s cubic-bezier(.25,.46,.45,.94);z-index:5}
+.ship:hover{z-index:20;transform:scale(1.3)}
+.ship .helmet{width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,#2a3a6a,#1a2040);border:2px solid #4466aa;
+  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.ship .helmet .visor{width:32px;height:32px;border-radius:50%;overflow:hidden;
+  border:1px solid rgba(100,200,255,.4)}
+.ship .helmet .visor img{width:100%;height:100%;object-fit:cover}
+.ship .helmet .visor .initials{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:bold;background:linear-gradient(135deg,#334,#556);color:#aaccff}
+.ship .name-plate{margin-top:3px;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:bold;
+  background:rgba(0,0,0,.7);border:1px solid rgba(100,150,255,.3);white-space:nowrap;text-align:center}
+
+/* Flame effects */
+.ship .flame{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:16px;height:20px;opacity:0}
+.ship.normal .flame{opacity:0}
+.ship.smile .flame{opacity:1;animation:flame-blue .3s infinite alternate}
+.ship.fire .flame{opacity:1;width:24px;height:30px;animation:flame-red .15s infinite alternate}
+
+@keyframes flame-blue{
+  0%{filter:drop-shadow(0 0 4px #0088ff);background:radial-gradient(ellipse,#00aaff,#0044aa,transparent)}
+  100%{filter:drop-shadow(0 0 8px #00aaff);background:radial-gradient(ellipse,#44ccff,#0066cc,transparent)}
+}
+@keyframes flame-red{
+  0%{filter:drop-shadow(0 0 6px #ff4400);background:radial-gradient(ellipse,#ff6600,#cc0000,transparent)}
+  100%{filter:drop-shadow(0 0 12px #ff6600);background:radial-gradient(ellipse,#ffaa00,#ff2200,transparent)}
+}
+
+/* Aura */
+.ship.smile .helmet{box-shadow:0 0 12px rgba(0,150,255,.5)}
+.ship.fire .helmet{box-shadow:0 0 20px rgba(255,80,0,.7);animation:pulse-fire .5s infinite alternate}
+@keyframes pulse-fire{0%{box-shadow:0 0 20px rgba(255,80,0,.7)}100%{box-shadow:0 0 35px rgba(255,120,0,.9)}}
+
+/* Track dots */
+.track-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(150,180,255,.3);
+  box-shadow:0 0 4px rgba(150,180,255,.2)}
+.track-dot.planet{width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#667,#334);box-shadow:0 0 8px rgba(100,150,255,.3)}
+.track-dot.nebula{width:40px;height:40px;border-radius:50%;
+  background:radial-gradient(circle,rgba(150,50,200,.2),transparent);filter:blur(8px)}
+
+/* ===== Ranking ===== */
+.ranking-panel{background:linear-gradient(180deg,rgba(15,20,50,.95),rgba(10,14,39,.95));
+  border:1px solid rgba(100,120,255,.2);border-radius:16px;padding:16px}
+.ranking-panel h2{font-size:1rem;color:#8899cc;margin-bottom:12px;text-align:center;letter-spacing:.15em}
+
+.rank-item{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:6px;
+  border-radius:10px;background:rgba(30,40,80,.5);border:1px solid rgba(100,120,255,.1);
+  transition:all .3s;cursor:pointer}
+.rank-item:hover{background:rgba(40,55,110,.6);border-color:rgba(100,150,255,.3)}
+.rank-item.gold{border-color:rgba(255,215,0,.4);background:rgba(60,50,20,.4)}
+.rank-item.silver{border-color:rgba(192,192,192,.3);background:rgba(50,50,60,.4)}
+.rank-item.bronze{border-color:rgba(205,127,50,.3);background:rgba(50,40,30,.4)}
+
+.rank-num{font-size:1.1rem;font-weight:bold;width:28px;text-align:center}
+.rank-item.gold .rank-num{color:#ffd700}
+.rank-item.silver .rank-num{color:#c0c0c0}
+.rank-item.bronze .rank-num{color:#cd7f32}
+
+.rank-info{flex:1}
+.rank-name{font-size:.85rem;font-weight:bold}
+.rank-detail{font-size:.7rem;color:#7788aa;margin-top:2px}
+.rank-pts{font-size:1rem;font-weight:bold;color:#00d4ff}
+.rank-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:4px;overflow:hidden}
+.rank-bar-fill{height:100%;border-radius:2px;transition:width 1.5s ease}
+
+/* ===== Tooltip ===== */
+.tooltip{position:absolute;z-index:100;background:rgba(15,20,50,.95);border:1px solid rgba(100,150,255,.4);
+  border-radius:10px;padding:12px;pointer-events:none;opacity:0;transition:opacity .2s;min-width:180px}
+.tooltip.show{opacity:1}
+.tooltip h3{font-size:.9rem;color:#ffd700;margin-bottom:6px}
+.tooltip .stat{font-size:.75rem;color:#aabbdd;margin:3px 0}
+.tooltip .stat span{color:#00d4ff;font-weight:bold}
+
+/* ===== Week Toggle ===== */
+.week-toggle{text-align:center;margin:10px 0;position:relative;z-index:10}
+.week-toggle button{padding:8px 20px;margin:0 4px;border:1px solid rgba(100,150,255,.3);
+  background:rgba(20,30,60,.8);color:#aabbdd;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .3s}
+.week-toggle button.active{background:rgba(40,60,120,.8);color:#fff;border-color:rgba(100,180,255,.6);
+  box-shadow:0 0 10px rgba(100,150,255,.2)}
+.week-toggle button:hover{border-color:rgba(100,180,255,.5)}
+
+/* ===== Animation overlay ===== */
+.anim-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;pointer-events:none;display:none}
+.anim-overlay.active{display:block}
+.warp-line{position:absolute;width:2px;background:linear-gradient(180deg,transparent,#00aaff,transparent);
+  animation:warp-streak .6s linear forwards;opacity:0}
+@keyframes warp-streak{0%{opacity:0;transform:translateY(-100vh)}50%{opacity:1}100%{opacity:0;transform:translateY(100vh)}}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .app-container{flex-direction:column}
+  .ranking-section{max-width:100%}
+  header h1{font-size:1.4rem}
+  .track{height:400px}
+}
+</style>
+</head>
+<body>
+
+<!-- Stars canvas -->
+<div class="stars"><canvas id="starsCanvas"></canvas></div>
+
+<!-- Header -->
+<header>
+  <h1>GALAXY RACE ~星々を巡る旅~</h1>
+  <p>教室対抗すごろくレース</p>
+</header>
+
+<!-- Top banner -->
+<div class="top-banner" id="topBanner">
+  <span class="crown">👑</span>
+  <span class="leader-name" id="leaderName">---</span>
+  <span class="leader-pts" id="leaderPts">0 pts</span>
+</div>
+
+<!-- Week toggle -->
+<div class="week-toggle">
+  <button id="btnWeek1" onclick="setWeek(1)">先々週</button>
+  <button id="btnWeek2" class="active" onclick="setWeek(2)">先週（最新）</button>
+  <button id="btnAnimate" onclick="playAnimation()">🚀 レース再生</button>
+</div>
+
+<!-- Main content -->
+<div class="app-container">
+  <!-- Map -->
+  <div class="map-section">
+    <div class="map-container">
+      <div class="track" id="track"></div>
+    </div>
+  </div>
+  <!-- Ranking -->
+  <div class="ranking-section">
+    <div class="ranking-panel" id="rankingPanel">
+      <h2>🏆 ランキング</h2>
+      <div id="rankingList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- Animation overlay -->
+<div class="anim-overlay" id="animOverlay"></div>
+
+<script>
+// ===== Data =====
+const classrooms = [
+  {name:'王寺',   hw1:85,q1:72,hw2:88,q2:75},
+  {name:'学園前', hw1:92,q1:81,hw2:89,q2:78},
+  {name:'京田辺', hw1:78,q1:68,hw2:82,q2:72},
+  {name:'郡山',   hw1:81,q1:74,hw2:84,q2:76},
+  {name:'五位堂', hw1:89,q1:77,hw2:91,q2:80},
+  {name:'高の原', hw1:87,q1:73,hw2:85,q2:71},
+  {name:'高田',   hw1:83,q1:69,hw2:86,q2:74},
+  {name:'桜井',   hw1:79,q1:65,hw2:81,q2:70},
+  {name:'神宮',   hw1:91,q1:79,hw2:93,q2:82},
+  {name:'生駒',   hw1:86,q1:75,hw2:88,q2:78},
+  {name:'西大寺', hw1:80,q1:70,hw2:83,q2:73},
+  {name:'登美ヶ丘',hw1:84,q1:72,hw2:87,q2:76},
+  {name:'奈良',   hw1:82,q1:71,hw2:85,q2:75},
+  {name:'八木',   hw1:88,q1:76,hw2:90,q2:79},
+  {name:'木津南', hw1:76,q1:67,hw2:80,q2:69},
+];
+
+// Ship colors for variety
+const shipColors = [
+  '#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9',
+  '#4dabf7','#748ffc','#9775fa','#da77f2','#f783ac',
+  '#ff8787','#e599f7','#66d9e8','#a9e34b','#ffe066'
+];
+
+// ===== Track path - a winding course through space =====
+function generateTrackPoints(numPoints) {
+  const pts = [];
+  const w = document.getElementById('track').clientWidth - 60;
+  const h = document.getElementById('track').clientHeight - 60;
+  for (let i = 0; i < numPoints; i++) {
+    const t = i / (numPoints - 1);
+    // Serpentine path
+    const x = 30 + t * w;
+    const y = 30 + h/2 + Math.sin(t * Math.PI * 3) * (h * 0.35);
+    pts.push({x, y});
+  }
+  return pts;
+}
+
+let trackPoints = [];
+let currentWeek = 2;
+let ships = [];
+
+// ===== Compute total points =====
+function getPoints(c, week) {
+  if (week === 1) return c.hw1 + c.q1;
+  return c.hw1 + c.q1 + c.hw2 + c.q2; // cumulative
+}
+function getWeekPoints(c, week) {
+  if (week === 1) return {hw: c.hw1, q: c.q1, total: c.hw1 + c.q1};
+  return {hw: c.hw2, q: c.q2, total: c.hw2 + c.q2};
+}
+
+// ===== Get status class =====
+function getStatus(weekPts) {
+  if (weekPts >= 160) return 'fire';
+  if (weekPts >= 100) return 'smile';
+  return 'normal';
+}
+
+// ===== Initialize =====
+function init() {
+  initStars();
+  trackPoints = generateTrackPoints(400);
+  renderTrackDots();
+  renderShips();
+  updateRanking();
+  updateLeader();
+}
+
+// ===== Stars =====
+function initStars() {
+  const canvas = document.getElementById('starsCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const stars = [];
+  for (let i = 0; i < 300; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.3,
+      a: Math.random(),
+      speed: Math.random() * 0.02 + 0.005
+    });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.a += s.speed;
+      const alpha = 0.3 + Math.sin(s.a) * 0.4;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(180,200,255,${Math.max(0, alpha)})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ===== Track dots =====
+function renderTrackDots() {
+  const track = document.getElementById('track');
+  // Clear existing dots
+  track.querySelectorAll('.track-dot,.track-dot.planet,.track-dot.nebula').forEach(d=>d.remove());
+
+  // Small star markers
+  for (let i = 0; i < trackPoints.length; i += 8) {
+    const dot = document.createElement('div');
+    dot.className = 'track-dot';
+    dot.style.left = trackPoints[i].x + 'px';
+    dot.style.top = trackPoints[i].y + 'px';
+    track.appendChild(dot);
+  }
+  // Planets at intervals
+  [50, 130, 210, 290, 370].forEach(i => {
+    if (i < trackPoints.length) {
+      const p = document.createElement('div');
+      p.className = 'track-dot planet';
+      p.style.left = (trackPoints[i].x - 4) + 'px';
+      p.style.top = (trackPoints[i].y - 4) + 'px';
+      track.appendChild(p);
+    }
+  });
+  // Nebulae
+  [80, 200, 320].forEach(i => {
+    if (i < trackPoints.length) {
+      const n = document.createElement('div');
+      n.className = 'track-dot nebula';
+      n.style.left = (trackPoints[i].x - 20) + 'px';
+      n.style.top = (trackPoints[i].y - 20) + 'px';
+      track.appendChild(n);
+    }
+  });
+}
+
+// ===== Position on track =====
+function getTrackPosition(totalPts, maxPts) {
+  const ratio = Math.min(totalPts / maxPts, 1);
+  const idx = Math.floor(ratio * (trackPoints.length - 1));
+  return trackPoints[idx];
+}
+
+// ===== Render Ships =====
+function renderShips() {
+  const track = document.getElementById('track');
+  // Remove old ships
+  track.querySelectorAll('.ship').forEach(s => s.remove());
+  ships = [];
+
+  // Find max points for scaling
+  const maxPts = Math.max(...classrooms.map(c => getPoints(c, currentWeek)));
+
+  classrooms.forEach((c, i) => {
+    const pts = getPoints(c, currentWeek);
+    const weekPts = getWeekPoints(c, currentWeek);
+    const status = getStatus(weekPts.total);
+    const pos = getTrackPosition(pts, maxPts + 20);
+
+    const ship = document.createElement('div');
+    ship.className = `ship ${status}`;
+    ship.style.left = (pos.x - 22) + 'px';
+    ship.style.top = (pos.y - 30) + 'px';
+    ship.dataset.index = i;
+
+    // Small vertical offset to avoid overlap
+    const offset = (i % 5) * 8 - 16;
+    ship.style.top = (pos.y - 30 + offset) + 'px';
+
+    ship.innerHTML = `
+      <div class="helmet" style="border-color:${shipColors[i]}">
+        <div class="visor">
+          <div class="initials" style="background:linear-gradient(135deg,${shipColors[i]}44,${shipColors[i]}22)">${c.name.slice(0,2)}</div>
+        </div>
+      </div>
+      <div class="flame" style="background:radial-gradient(ellipse,${status==='fire'?'#ff6600,#cc0000':'#00aaff,#0044aa'},transparent)"></div>
+      <div class="name-plate" style="border-color:${shipColors[i]}80">${c.name}</div>
+    `;
+
+    ship.addEventListener('mouseenter', e => showTooltip(e, c, weekPts, pts));
+    ship.addEventListener('mouseleave', hideTooltip);
+    ship.addEventListener('touchstart', e => showTooltip(e, c, weekPts, pts));
+
+    track.appendChild(ship);
+    ships.push(ship);
+  });
+}
+
+// ===== Tooltip =====
+function showTooltip(e, c, weekPts, totalPts) {
+  const tip = document.getElementById('tooltip');
+  const status = getStatus(weekPts.total);
+  const statusLabel = status === 'fire' ? '🔥 激アツ！' : status === 'smile' ? '😊 好調！' : '🚀 前進中';
+  tip.innerHTML = `
+    <h3>${c.name}教室</h3>
+    <div class="stat">状態: <span>${statusLabel}</span></div>
+    <div class="stat">今週の宿題率: <span>${weekPts.hw}%</span></div>
+    <div class="stat">今週の80点以上率: <span>${weekPts.q}%</span></div>
+    <div class="stat">今週獲得: <span>${weekPts.total}pt</span></div>
+    <div class="stat">累計: <span>${totalPts}pt</span></div>
+  `;
+  tip.classList.add('show');
+  const rect = e.target.closest('.ship').getBoundingClientRect();
+  tip.style.left = (rect.right + 10) + 'px';
+  tip.style.top = (rect.top) + 'px';
+}
+function hideTooltip() {
+  document.getElementById('tooltip').classList.remove('show');
+}
+
+// ===== Ranking =====
+function updateRanking() {
+  const list = document.getElementById('rankingList');
+  const sorted = classrooms.map((c, i) => ({
+    ...c, i,
+    total: getPoints(c, currentWeek),
+    week: getWeekPoints(c, currentWeek)
+  })).sort((a, b) => b.total - a.total);
+
+  const maxPts = sorted[0].total;
+
+  list.innerHTML = sorted.map((c, rank) => {
+    const medal = rank === 0 ? 'gold' : rank === 1 ? 'silver' : rank === 2 ? 'bronze' : '';
+    const pct = (c.total / maxPts * 100).toFixed(0);
+    const barColor = c.week.total >= 160 ? '#ff6b35' : c.week.total >= 100 ? '#4dabf7' : '#555';
+    return `
+      <div class="rank-item ${medal}" onmouseenter="highlightShip(${c.i})" onmouseleave="unhighlightShip(${c.i})">
+        <div class="rank-num">${rank + 1}</div>
+        <div class="rank-info">
+          <div class="rank-name">${c.name}教室</div>
+          <div class="rank-detail">宿題${c.week.hw}% / テスト${c.week.q}%（今週+${c.week.total}）</div>
+          <div class="rank-bar"><div class="rank-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+        </div>
+        <div class="rank-pts">${c.total}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function highlightShip(i) {
+  if (ships[i]) ships[i].style.transform = 'scale(1.4)';
+}
+function unhighlightShip(i) {
+  if (ships[i]) ships[i].style.transform = '';
+}
+
+// ===== Leader =====
+function updateLeader() {
+  const sorted = classrooms.map(c => ({
+    name: c.name, total: getPoints(c, currentWeek)
+  })).sort((a, b) => b.total - a.total);
+  document.getElementById('leaderName').textContent = sorted[0].name + '教室';
+  document.getElementById('leaderPts').textContent = sorted[0].total + ' pts';
+}
+
+// ===== Week toggle =====
+function setWeek(w) {
+  currentWeek = w;
+  document.getElementById('btnWeek1').classList.toggle('active', w === 1);
+  document.getElementById('btnWeek2').classList.toggle('active', w === 2);
+  renderShips();
+  updateRanking();
+  updateLeader();
+}
+
+// ===== Race animation =====
+function playAnimation() {
+  // First show week 1 positions
+  setWeek(1);
+
+  setTimeout(() => {
+    // Show warp effect
+    const overlay = document.getElementById('animOverlay');
+    overlay.classList.add('active');
+    for (let i = 0; i < 30; i++) {
+      const line = document.createElement('div');
+      line.className = 'warp-line';
+      line.style.left = Math.random() * 100 + '%';
+      line.style.height = (Math.random() * 200 + 100) + 'px';
+      line.style.animationDelay = Math.random() * 0.5 + 's';
+      overlay.appendChild(line);
+    }
+
+    setTimeout(() => {
+      // Transition to week 2
+      setWeek(2);
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        overlay.innerHTML = '';
+      }, 800);
+    }, 600);
+  }, 1500);
+}
+
+// ===== Resize handler =====
+window.addEventListener('resize', () => {
+  trackPoints = generateTrackPoints(400);
+  renderTrackDots();
+  renderShips();
+  const canvas = document.getElementById('starsCanvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// ===== Start =====
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
