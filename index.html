@@ -35,13 +35,23 @@ header p{font-size:.85rem;color:#8899cc;margin-top:4px}
 
 /* ===== Map ===== */
 .map-container{position:relative;background:radial-gradient(ellipse at 30% 40%,#1a1040 0%,#0a0e27 60%,#050818 100%);
-  border-radius:16px;border:1px solid rgba(100,120,255,.2);overflow:hidden;padding:20px;min-height:520px}
+  border-radius:16px;border:1px solid rgba(100,120,255,.2);overflow:hidden;padding:0;min-height:520px;cursor:grab}
+.map-container:active{cursor:grabbing}
 .map-container::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;
   background:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1200&q=30') center/cover no-repeat;
   opacity:.12;pointer-events:none}
 
+/* Zoom controls */
+.zoom-controls{position:absolute;top:10px;right:10px;z-index:20;display:flex;flex-direction:column;gap:4px}
+.zoom-controls button{width:36px;height:36px;border:1px solid rgba(100,150,255,.3);
+  background:rgba(15,20,50,.85);color:#aaccff;border-radius:8px;cursor:pointer;font-size:1.2rem;
+  display:flex;align-items:center;justify-content:center;transition:all .2s}
+.zoom-controls button:hover{background:rgba(40,60,120,.8);border-color:rgba(100,180,255,.6)}
+.zoom-label{font-size:.65rem;color:#6677aa;text-align:center;padding:2px 0}
+
 /* Track */
-.track{position:relative;width:100%;height:480px}
+.track-wrapper{width:100%;height:520px;overflow:hidden;position:relative}
+.track{position:relative;transform-origin:0 0;transition:transform .3s ease}
 .track-path{position:absolute;top:0;left:0;width:100%;height:100%}
 
 /* Ship (koma) */
@@ -113,7 +123,7 @@ header p{font-size:.85rem;color:#8899cc;margin-top:4px}
 .rank-bar-fill{height:100%;border-radius:2px;transition:width 1.5s ease}
 
 /* ===== Tooltip ===== */
-.tooltip{position:absolute;z-index:100;background:rgba(15,20,50,.95);border:1px solid rgba(100,150,255,.4);
+.tooltip{position:fixed;z-index:100;background:rgba(15,20,50,.95);border:1px solid rgba(100,150,255,.4);
   border-radius:10px;padding:12px;pointer-events:none;opacity:0;transition:opacity .2s;min-width:180px}
 .tooltip.show{opacity:1}
 .tooltip h3{font-size:.9rem;color:#ffd700;margin-bottom:6px}
@@ -173,8 +183,17 @@ header p{font-size:.85rem;color:#8899cc;margin-top:4px}
 <div class="app-container">
   <!-- Map -->
   <div class="map-section">
-    <div class="map-container">
-      <div class="track" id="track"></div>
+    <div class="map-container" id="mapContainer">
+      <div class="zoom-controls">
+        <button onclick="zoomIn()" title="ズームイン">+</button>
+        <button onclick="zoomOut()" title="ズームアウト">-</button>
+        <div class="zoom-label" id="zoomLabel">100%</div>
+        <button onclick="zoomReset()" title="リセット" style="font-size:.75rem">↺</button>
+        <button onclick="zoomToLeaders()" title="先頭グループ" style="font-size:.75rem">🏁</button>
+      </div>
+      <div class="track-wrapper" id="trackWrapper">
+        <div class="track" id="track"></div>
+      </div>
     </div>
   </div>
   <!-- Ranking -->
@@ -212,23 +231,30 @@ const classrooms = [
   {name:'木津南', hw1:76,q1:67,hw2:80,q2:69},
 ];
 
-// Ship colors for variety
 const shipColors = [
   '#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9',
   '#4dabf7','#748ffc','#9775fa','#da77f2','#f783ac',
   '#ff8787','#e599f7','#66d9e8','#a9e34b','#ffe066'
 ];
 
-// ===== Track path - a winding course through space =====
+// ===== Zoom & Pan state =====
+let zoomLevel = 1;
+let panX = 0, panY = 0;
+let isDragging = false;
+let dragStartX, dragStartY, dragPanStartX, dragPanStartY;
+const ZOOM_MIN = 1, ZOOM_MAX = 5, ZOOM_STEP = 0.5;
+
+// The track is drawn on a large internal canvas for spreading ships
+const TRACK_WIDTH = 2400;
+const TRACK_HEIGHT = 500;
+
+// ===== Track path =====
 function generateTrackPoints(numPoints) {
   const pts = [];
-  const w = document.getElementById('track').clientWidth - 60;
-  const h = document.getElementById('track').clientHeight - 60;
   for (let i = 0; i < numPoints; i++) {
     const t = i / (numPoints - 1);
-    // Serpentine path
-    const x = 30 + t * w;
-    const y = 30 + h/2 + Math.sin(t * Math.PI * 3) * (h * 0.35);
+    const x = 40 + t * (TRACK_WIDTH - 80);
+    const y = 40 + (TRACK_HEIGHT - 80) / 2 + Math.sin(t * Math.PI * 3.5) * ((TRACK_HEIGHT - 80) * 0.38);
     pts.push({x, y});
   }
   return pts;
@@ -238,17 +264,15 @@ let trackPoints = [];
 let currentWeek = 2;
 let ships = [];
 
-// ===== Compute total points =====
+// ===== Points =====
 function getPoints(c, week) {
   if (week === 1) return c.hw1 + c.q1;
-  return c.hw1 + c.q1 + c.hw2 + c.q2; // cumulative
+  return c.hw1 + c.q1 + c.hw2 + c.q2;
 }
 function getWeekPoints(c, week) {
   if (week === 1) return {hw: c.hw1, q: c.q1, total: c.hw1 + c.q1};
   return {hw: c.hw2, q: c.q2, total: c.hw2 + c.q2};
 }
-
-// ===== Get status class =====
 function getStatus(weekPts) {
   if (weekPts >= 160) return 'fire';
   if (weekPts >= 100) return 'smile';
@@ -258,11 +282,16 @@ function getStatus(weekPts) {
 // ===== Initialize =====
 function init() {
   initStars();
-  trackPoints = generateTrackPoints(400);
+  trackPoints = generateTrackPoints(600);
+  const track = document.getElementById('track');
+  track.style.width = TRACK_WIDTH + 'px';
+  track.style.height = TRACK_HEIGHT + 'px';
   renderTrackDots();
   renderShips();
   updateRanking();
   updateLeader();
+  initDragPan();
+  applyTransform();
 }
 
 // ===== Stars =====
@@ -299,19 +328,16 @@ function initStars() {
 // ===== Track dots =====
 function renderTrackDots() {
   const track = document.getElementById('track');
-  // Clear existing dots
-  track.querySelectorAll('.track-dot,.track-dot.planet,.track-dot.nebula').forEach(d=>d.remove());
+  track.querySelectorAll('.track-dot').forEach(d => d.remove());
 
-  // Small star markers
-  for (let i = 0; i < trackPoints.length; i += 8) {
+  for (let i = 0; i < trackPoints.length; i += 6) {
     const dot = document.createElement('div');
     dot.className = 'track-dot';
     dot.style.left = trackPoints[i].x + 'px';
     dot.style.top = trackPoints[i].y + 'px';
     track.appendChild(dot);
   }
-  // Planets at intervals
-  [50, 130, 210, 290, 370].forEach(i => {
+  [60, 150, 250, 360, 480, 560].forEach(i => {
     if (i < trackPoints.length) {
       const p = document.createElement('div');
       p.className = 'track-dot planet';
@@ -320,8 +346,7 @@ function renderTrackDots() {
       track.appendChild(p);
     }
   });
-  // Nebulae
-  [80, 200, 320].forEach(i => {
+  [100, 300, 500].forEach(i => {
     if (i < trackPoints.length) {
       const n = document.createElement('div');
       n.className = 'track-dot nebula';
@@ -332,38 +357,80 @@ function renderTrackDots() {
   });
 }
 
-// ===== Position on track =====
-function getTrackPosition(totalPts, maxPts) {
-  const ratio = Math.min(totalPts / maxPts, 1);
-  const idx = Math.floor(ratio * (trackPoints.length - 1));
+// ===== Position on track - spread differences more =====
+function getTrackPosition(totalPts, minPts, maxPts) {
+  // Use a spread mapping: bottom 20% of track for the range below minPts,
+  // remaining 80% for the actual point range between min and max
+  const range = maxPts - minPts;
+  if (range === 0) return trackPoints[Math.floor(trackPoints.length / 2)];
+  const normalizedRatio = (totalPts - minPts) / range; // 0..1 within the actual data range
+  // Map to 15%..100% of track so even last place is visible
+  const trackRatio = 0.15 + normalizedRatio * 0.85;
+  const idx = Math.min(Math.floor(trackRatio * (trackPoints.length - 1)), trackPoints.length - 1);
   return trackPoints[idx];
 }
 
 // ===== Render Ships =====
 function renderShips() {
   const track = document.getElementById('track');
-  // Remove old ships
   track.querySelectorAll('.ship').forEach(s => s.remove());
   ships = [];
 
-  // Find max points for scaling
-  const maxPts = Math.max(...classrooms.map(c => getPoints(c, currentWeek)));
+  const allPts = classrooms.map(c => getPoints(c, currentWeek));
+  const maxPts = Math.max(...allPts);
+  const minPts = Math.min(...allPts);
 
-  classrooms.forEach((c, i) => {
-    const pts = getPoints(c, currentWeek);
+  // Sort by points for stacking (lower z for lower pts)
+  const indexed = classrooms.map((c, i) => ({c, i, pts: allPts[i]}));
+  indexed.sort((a, b) => a.pts - b.pts);
+
+  // Track which positions are occupied for smart vertical offset
+  const occupied = [];
+
+  indexed.forEach(({c, i, pts}) => {
     const weekPts = getWeekPoints(c, currentWeek);
     const status = getStatus(weekPts.total);
-    const pos = getTrackPosition(pts, maxPts + 20);
+    const pos = getTrackPosition(pts, minPts, maxPts);
+
+    // Smart vertical offset to avoid overlap
+    let bestOffset = 0;
+    let minOverlap = Infinity;
+    for (let tryOff = -60; tryOff <= 60; tryOff += 20) {
+      const testY = pos.y + tryOff;
+      const testX = pos.x;
+      let closest = Infinity;
+      occupied.forEach(o => {
+        const dist = Math.sqrt((o.x - testX) ** 2 + (o.y - testY) ** 2);
+        if (dist < closest) closest = dist;
+      });
+      if (closest > minOverlap || closest === Infinity) {
+        minOverlap = closest;
+        bestOffset = tryOff;
+      }
+    }
+    // Pick the offset with most distance from others
+    let finalOffset = 0;
+    let maxDist = 0;
+    for (let tryOff = -60; tryOff <= 60; tryOff += 15) {
+      const testY = pos.y + tryOff;
+      let closestDist = Infinity;
+      occupied.forEach(o => {
+        const dist = Math.sqrt((o.x - pos.x) ** 2 + (o.y - testY) ** 2);
+        if (dist < closestDist) closestDist = dist;
+      });
+      if (closestDist > maxDist) {
+        maxDist = closestDist;
+        finalOffset = tryOff;
+      }
+    }
+
+    occupied.push({x: pos.x, y: pos.y + finalOffset});
 
     const ship = document.createElement('div');
     ship.className = `ship ${status}`;
     ship.style.left = (pos.x - 22) + 'px';
-    ship.style.top = (pos.y - 30) + 'px';
+    ship.style.top = (pos.y - 30 + finalOffset) + 'px';
     ship.dataset.index = i;
-
-    // Small vertical offset to avoid overlap
-    const offset = (i % 5) * 8 - 16;
-    ship.style.top = (pos.y - 30 + offset) + 'px';
 
     ship.innerHTML = `
       <div class="helmet" style="border-color:${shipColors[i]}">
@@ -377,10 +444,10 @@ function renderShips() {
 
     ship.addEventListener('mouseenter', e => showTooltip(e, c, weekPts, pts));
     ship.addEventListener('mouseleave', hideTooltip);
-    ship.addEventListener('touchstart', e => showTooltip(e, c, weekPts, pts));
+    ship.addEventListener('touchstart', e => { e.preventDefault(); showTooltip(e, c, weekPts, pts); }, {passive:false});
 
     track.appendChild(ship);
-    ships.push(ship);
+    ships[i] = ship; // index by original classroom index
   });
 }
 
@@ -389,18 +456,23 @@ function showTooltip(e, c, weekPts, totalPts) {
   const tip = document.getElementById('tooltip');
   const status = getStatus(weekPts.total);
   const statusLabel = status === 'fire' ? '🔥 激アツ！' : status === 'smile' ? '😊 好調！' : '🚀 前進中';
+
+  const allPts = classrooms.map(cl => getPoints(cl, currentWeek)).sort((a,b) => b - a);
+  const rank = allPts.indexOf(totalPts) + 1;
+
   tip.innerHTML = `
     <h3>${c.name}教室</h3>
     <div class="stat">状態: <span>${statusLabel}</span></div>
-    <div class="stat">今週の宿題率: <span>${weekPts.hw}%</span></div>
-    <div class="stat">今週の80点以上率: <span>${weekPts.q}%</span></div>
-    <div class="stat">今週獲得: <span>${weekPts.total}pt</span></div>
-    <div class="stat">累計: <span>${totalPts}pt</span></div>
+    <div class="stat">宿題実施率: <span>${weekPts.hw}%</span></div>
+    <div class="stat">80点以上率: <span>${weekPts.q}%</span></div>
+    <div class="stat" style="border-top:1px solid rgba(100,150,255,.2);margin-top:6px;padding-top:6px">
+      今週獲得: <span>${weekPts.total}pt</span></div>
+    <div class="stat">累計（マップ位置）: <span>${totalPts}pt</span></div>
   `;
   tip.classList.add('show');
   const rect = e.target.closest('.ship').getBoundingClientRect();
-  tip.style.left = (rect.right + 10) + 'px';
-  tip.style.top = (rect.top) + 'px';
+  tip.style.left = Math.min(rect.right + 10, window.innerWidth - 200) + 'px';
+  tip.style.top = Math.min(rect.top, window.innerHeight - 160) + 'px';
 }
 function hideTooltip() {
   document.getElementById('tooltip').classList.remove('show');
@@ -409,46 +481,72 @@ function hideTooltip() {
 // ===== Ranking =====
 function updateRanking() {
   const list = document.getElementById('rankingList');
+  // ランキングはその週の獲得ptで並び替え
   const sorted = classrooms.map((c, i) => ({
     ...c, i,
-    total: getPoints(c, currentWeek),
+    cumulative: getPoints(c, currentWeek),
     week: getWeekPoints(c, currentWeek)
-  })).sort((a, b) => b.total - a.total);
+  })).sort((a, b) => b.week.total - a.week.total);
 
-  const maxPts = sorted[0].total;
+  const maxPts = sorted[0].week.total;
+  const minPts = sorted[sorted.length - 1].week.total;
+  const range = maxPts - minPts || 1;
+
+  const weekLabel = currentWeek === 1 ? '先々週' : '先週';
 
   list.innerHTML = sorted.map((c, rank) => {
     const medal = rank === 0 ? 'gold' : rank === 1 ? 'silver' : rank === 2 ? 'bronze' : '';
-    const pct = (c.total / maxPts * 100).toFixed(0);
-    const barColor = c.week.total >= 160 ? '#ff6b35' : c.week.total >= 100 ? '#4dabf7' : '#555';
+    const pct = ((c.week.total - minPts) / range * 80 + 20).toFixed(0);
+    const barColor = c.week.total >= 160 ? '#ff6b35' : c.week.total >= 100 ? '#4dabf7' : '#556';
+    const diff = rank > 0 ? sorted[rank - 1].week.total - c.week.total : 0;
+    const diffText = rank > 0 ? `▲${diff}pt差` : '';
     return `
-      <div class="rank-item ${medal}" onmouseenter="highlightShip(${c.i})" onmouseleave="unhighlightShip(${c.i})">
+      <div class="rank-item ${medal}" onmouseenter="highlightShip(${c.i})" onmouseleave="unhighlightShip(${c.i})"
+           onclick="focusShip(${c.i})">
         <div class="rank-num">${rank + 1}</div>
         <div class="rank-info">
-          <div class="rank-name">${c.name}教室</div>
-          <div class="rank-detail">宿題${c.week.hw}% / テスト${c.week.q}%（今週+${c.week.total}）</div>
+          <div class="rank-name">${c.name}教室 <span style="font-size:.65rem;color:#556;font-weight:normal">累計${c.cumulative}pt</span></div>
+          <div class="rank-detail">宿題${c.week.hw}% / テスト${c.week.q}% ${diffText}</div>
           <div class="rank-bar"><div class="rank-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
         </div>
-        <div class="rank-pts">${c.total}</div>
+        <div class="rank-pts">${c.week.total}<span style="font-size:.6rem;color:#556">pt</span></div>
       </div>
     `;
   }).join('');
+
+  document.getElementById('rankingPanel').querySelector('h2').textContent = `🏆 ${weekLabel}ランキング`;
 }
 
 function highlightShip(i) {
-  if (ships[i]) ships[i].style.transform = 'scale(1.4)';
+  if (ships[i]) { ships[i].style.transform = 'scale(1.4)'; ships[i].style.zIndex = '30'; }
 }
 function unhighlightShip(i) {
-  if (ships[i]) ships[i].style.transform = '';
+  if (ships[i]) { ships[i].style.transform = ''; ships[i].style.zIndex = ''; }
+}
+
+// ===== Focus on a ship (zoom to it) =====
+function focusShip(i) {
+  if (!ships[i]) return;
+  const shipLeft = parseFloat(ships[i].style.left) + 22;
+  const shipTop = parseFloat(ships[i].style.top) + 30;
+  zoomLevel = 3;
+  const wrapper = document.getElementById('trackWrapper');
+  const wW = wrapper.clientWidth;
+  const wH = wrapper.clientHeight;
+  panX = -(shipLeft * zoomLevel - wW / 2);
+  panY = -(shipTop * zoomLevel - wH / 2);
+  clampPan();
+  applyTransform();
 }
 
 // ===== Leader =====
 function updateLeader() {
-  const sorted = classrooms.map(c => ({
+  // マップトップ = 累計ポイント1位
+  const sortedMap = classrooms.map(c => ({
     name: c.name, total: getPoints(c, currentWeek)
   })).sort((a, b) => b.total - a.total);
-  document.getElementById('leaderName').textContent = sorted[0].name + '教室';
-  document.getElementById('leaderPts').textContent = sorted[0].total + ' pts';
+  document.getElementById('leaderName').textContent = sortedMap[0].name + '教室';
+  document.getElementById('leaderPts').textContent = '累計 ' + sortedMap[0].total + ' pts';
 }
 
 // ===== Week toggle =====
@@ -461,13 +559,146 @@ function setWeek(w) {
   updateLeader();
 }
 
+// ===== Zoom & Pan =====
+function applyTransform() {
+  const track = document.getElementById('track');
+  track.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+  document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
+}
+
+function clampPan() {
+  const wrapper = document.getElementById('trackWrapper');
+  const wW = wrapper.clientWidth;
+  const wH = wrapper.clientHeight;
+  const maxPanX = 0;
+  const minPanX = -(TRACK_WIDTH * zoomLevel - wW);
+  const maxPanY = 20;
+  const minPanY = -(TRACK_HEIGHT * zoomLevel - wH);
+  panX = Math.max(Math.min(panX, maxPanX), Math.min(minPanX, maxPanX));
+  panY = Math.max(Math.min(panY, maxPanY), Math.min(minPanY, maxPanY));
+}
+
+function zoomIn() {
+  if (zoomLevel >= ZOOM_MAX) return;
+  // Zoom toward center of viewport
+  const wrapper = document.getElementById('trackWrapper');
+  const cx = wrapper.clientWidth / 2;
+  const cy = wrapper.clientHeight / 2;
+  const oldZ = zoomLevel;
+  zoomLevel = Math.min(zoomLevel + ZOOM_STEP, ZOOM_MAX);
+  const scale = zoomLevel / oldZ;
+  panX = cx - scale * (cx - panX);
+  panY = cy - scale * (cy - panY);
+  clampPan();
+  applyTransform();
+}
+
+function zoomOut() {
+  if (zoomLevel <= ZOOM_MIN) return;
+  const wrapper = document.getElementById('trackWrapper');
+  const cx = wrapper.clientWidth / 2;
+  const cy = wrapper.clientHeight / 2;
+  const oldZ = zoomLevel;
+  zoomLevel = Math.max(zoomLevel - ZOOM_STEP, ZOOM_MIN);
+  const scale = zoomLevel / oldZ;
+  panX = cx - scale * (cx - panX);
+  panY = cy - scale * (cy - panY);
+  clampPan();
+  applyTransform();
+}
+
+function zoomReset() {
+  zoomLevel = 1; panX = 0; panY = 0;
+  applyTransform();
+}
+
+function zoomToLeaders() {
+  // Zoom to top 3
+  const sorted = classrooms.map((c, i) => ({i, pts: getPoints(c, currentWeek)}))
+    .sort((a, b) => b.pts - a.pts);
+  const top3 = sorted.slice(0, 3);
+  let sumX = 0, sumY = 0;
+  top3.forEach(({i}) => {
+    if (ships[i]) {
+      sumX += parseFloat(ships[i].style.left) + 22;
+      sumY += parseFloat(ships[i].style.top) + 30;
+    }
+  });
+  const cx = sumX / 3, cy = sumY / 3;
+  zoomLevel = 3;
+  const wrapper = document.getElementById('trackWrapper');
+  panX = -(cx * zoomLevel - wrapper.clientWidth / 2);
+  panY = -(cy * zoomLevel - wrapper.clientHeight / 2);
+  clampPan();
+  applyTransform();
+}
+
+// ===== Drag to pan =====
+function initDragPan() {
+  const wrapper = document.getElementById('trackWrapper');
+
+  // Mouse
+  wrapper.addEventListener('mousedown', e => {
+    if (e.target.closest('.ship')) return; // don't drag when clicking ships
+    isDragging = true;
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    dragPanStartX = panX; dragPanStartY = panY;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    panX = dragPanStartX + (e.clientX - dragStartX);
+    panY = dragPanStartY + (e.clientY - dragStartY);
+    clampPan();
+    applyTransform();
+  });
+  window.addEventListener('mouseup', () => { isDragging = false; });
+
+  // Touch
+  wrapper.addEventListener('touchstart', e => {
+    if (e.target.closest('.ship')) return;
+    if (e.touches.length === 1) {
+      isDragging = true;
+      dragStartX = e.touches[0].clientX; dragStartY = e.touches[0].clientY;
+      dragPanStartX = panX; dragPanStartY = panY;
+    }
+  }, {passive: true});
+  wrapper.addEventListener('touchmove', e => {
+    if (!isDragging || e.touches.length !== 1) return;
+    panX = dragPanStartX + (e.touches[0].clientX - dragStartX);
+    panY = dragPanStartY + (e.touches[0].clientY - dragStartY);
+    clampPan();
+    applyTransform();
+    e.preventDefault();
+  }, {passive: false});
+  wrapper.addEventListener('touchend', () => { isDragging = false; });
+
+  // Mouse wheel zoom
+  wrapper.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = wrapper.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const oldZ = zoomLevel;
+    if (e.deltaY < 0) {
+      zoomLevel = Math.min(zoomLevel + 0.3, ZOOM_MAX);
+    } else {
+      zoomLevel = Math.max(zoomLevel - 0.3, ZOOM_MIN);
+    }
+    const scale = zoomLevel / oldZ;
+    panX = mx - scale * (mx - panX);
+    panY = my - scale * (my - panY);
+    clampPan();
+    applyTransform();
+  }, {passive: false});
+}
+
 // ===== Race animation =====
 function playAnimation() {
-  // First show week 1 positions
+  zoomReset();
   setWeek(1);
 
   setTimeout(() => {
-    // Show warp effect
     const overlay = document.getElementById('animOverlay');
     overlay.classList.add('active');
     for (let i = 0; i < 30; i++) {
@@ -480,7 +711,6 @@ function playAnimation() {
     }
 
     setTimeout(() => {
-      // Transition to week 2
       setWeek(2);
       setTimeout(() => {
         overlay.classList.remove('active');
@@ -490,11 +720,13 @@ function playAnimation() {
   }, 1500);
 }
 
-// ===== Resize handler =====
+// ===== Resize =====
 window.addEventListener('resize', () => {
-  trackPoints = generateTrackPoints(400);
+  trackPoints = generateTrackPoints(600);
   renderTrackDots();
   renderShips();
+  clampPan();
+  applyTransform();
   const canvas = document.getElementById('starsCanvas');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
