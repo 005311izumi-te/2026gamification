@@ -1,814 +1,411 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Galaxy Race ~星々を巡る旅~</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
-body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;background:#050818;color:#fff;overflow-x:hidden;min-height:100vh}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Race - A Journey Through the Stars -</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=M_PLUS_Rounded_1c:wght@400;700;800&display=swap');
+        
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #040814;
+            color: white;
+            overflow: hidden;
+            user-select: none;
+        }
 
-/* ===== Background layers ===== */
-.bg-space{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
-.bg-space canvas{width:100%;height:100%}
-.bg-nebula{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;
-  background:
-    radial-gradient(ellipse at 15% 30%, rgba(100,30,180,.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 75% 60%, rgba(20,60,180,.12) 0%, transparent 45%),
-    radial-gradient(ellipse at 50% 80%, rgba(180,50,80,.08) 0%, transparent 40%)}
+        /* Space Background with CSS */
+        .space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(29, 78, 216, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(14, 165, 233, 0.2) 0%, transparent 50%),
+                #040814;
+            z-index: -2;
+        }
 
-/* ===== Header ===== */
-.header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;
-  padding:12px 24px;background:linear-gradient(180deg,rgba(8,12,35,.95) 0%,rgba(8,12,35,.6) 80%,transparent 100%)}
-.header-left{display:flex;align-items:center;gap:12px}
-.header-logo{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:900;
-  background:linear-gradient(135deg,#6dd5fa,#2980b9,#6dd5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header-sub{font-size:.7rem;color:#5577aa}
-.header-week{font-size:.85rem;color:#88aadd;background:rgba(40,60,120,.5);padding:4px 14px;border-radius:20px;
-  border:1px solid rgba(100,150,255,.2)}
+        /* Twinkling Stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: twinkle 4s infinite alternate;
+            opacity: 0.6;
+        }
 
-/* ===== Top Leader Banner ===== */
-.leader-banner{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:16px;
-  padding:10px 20px;
-  background:linear-gradient(90deg,transparent,rgba(255,215,0,.08),rgba(255,215,0,.12),rgba(255,215,0,.08),transparent)}
-.leader-banner .crown-icon{font-size:2rem}
-.leader-banner .leader-info{text-align:center}
-.leader-banner .leader-label{font-size:.65rem;color:#aa9944;letter-spacing:.2em}
-.leader-banner .leader-name{font-size:1.3rem;font-weight:900;color:#ffd700;font-family:'Orbitron','Noto Sans JP',sans-serif}
-.leader-banner .leader-pts{font-size:.9rem;color:#ccaa44;font-weight:bold}
+        @keyframes twinkle {
+            0% { opacity: 0.4; }
+            100% { opacity: 0.8; transform: scale(1.02); }
+        }
 
-/* ===== Main Layout ===== */
-.main{position:relative;z-index:10;display:flex;gap:12px;padding:8px 12px;height:calc(100vh - 120px);min-height:500px}
-.map-area{flex:1;display:flex;flex-direction:column;gap:8px}
-.sidebar{width:320px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+        .glass-panel {
+            background: rgba(13, 22, 48, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(100, 149, 237, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
 
-/* ===== Map ===== */
-.map-container{flex:1;position:relative;border-radius:16px;overflow:hidden;cursor:grab;
-  background:radial-gradient(ellipse at 25% 35%,#1a1050 0%,#0c1030 40%,#060818 100%);
-  border:1px solid rgba(80,100,200,.25);box-shadow:0 0 40px rgba(30,50,150,.15)}
-.map-container:active{cursor:grabbing}
-.map-container .bg-img{position:absolute;top:0;left:0;width:100%;height:100%;
-  background:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1400&q=40') center/cover;
-  opacity:.15;pointer-events:none}
+        .gold-text {
+            background: linear-gradient(to right, #fde047, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 2px 10px rgba(245, 158, 11, 0.5);
+        }
 
-/* Zoom bar */
-.zoom-bar{position:absolute;top:10px;right:10px;z-index:20;display:flex;flex-direction:column;gap:3px}
-.zoom-bar button{width:32px;height:32px;border:1px solid rgba(100,150,255,.25);background:rgba(10,15,40,.85);
-  color:#88aadd;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
-.zoom-bar button:hover{background:rgba(30,50,100,.9);color:#aaccff}
-.zoom-bar .zlabel{font-size:.55rem;color:#556;text-align:center}
+        .fire-eyes {
+            position: relative;
+        }
+        .fire-eyes::after, .fire-eyes::before {
+            content: '🔥';
+            position: absolute;
+            font-size: 0.8rem;
+            top: 30%;
+            animation: burn 0.5s infinite alternate;
+        }
+        .fire-eyes::before { left: 20%; }
+        .fire-eyes::after { right: 20%; }
 
-/* Track */
-.track-wrap{width:100%;height:100%;overflow:hidden;position:relative}
-.track{position:absolute;transform-origin:0 0;transition:transform .4s cubic-bezier(.25,.46,.45,.94)}
+        @keyframes burn {
+            0% { transform: scale(0.9) translateY(0); opacity: 0.8; }
+            100% { transform: scale(1.2) translateY(-2px); opacity: 1; }
+        }
 
-/* ===== Ships ===== */
-.ship{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;
-  transition:left 2.5s cubic-bezier(.25,.46,.45,.94), top 2.5s cubic-bezier(.25,.46,.45,.94);z-index:5}
-.ship:hover{z-index:30;transform:scale(1.25)!important}
-.ship-body{position:relative;width:64px;height:64px}
-.ship-rocket{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:56px;height:40px;
-  background:linear-gradient(180deg,#3a4a8a 0%,#2a3060 100%);border-radius:40% 40% 20% 20%;
-  border:1px solid rgba(100,150,255,.3);display:flex;align-items:center;justify-content:center}
-.ship-rocket::before{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);
-  border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:10px solid #4a5a9a}
-.ship-rocket .wing-l,.ship-rocket .wing-r{position:absolute;bottom:2px;width:12px;height:18px;
-  background:linear-gradient(180deg,#4a5a9a,#3a4a7a);border-radius:0 0 4px 4px}
-.ship-rocket .wing-l{left:-8px;transform:skewY(15deg)}
-.ship-rocket .wing-r{right:-8px;transform:skewY(-15deg)}
+        /* Spaceship adjustments */
+        .spaceship-icon {
+            transform: rotate(45deg);
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6));
+        }
+        
+        .spaceship-flame-blue {
+            filter: drop-shadow(-10px 10px 15px rgba(56, 189, 248, 0.8));
+        }
 
-.ship-helmet{position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:40px;
-  border-radius:50%;background:linear-gradient(135deg,#3a4a8a,#252f60);border:2px solid;
-  display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:2}
-.ship-helmet .face{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:20px;background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(0,0,0,.1))}
+        .spaceship-flame-red {
+            filter: drop-shadow(-10px 10px 20px rgba(239, 68, 68, 0.9));
+        }
 
-.ship-flame{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:20px;height:24px;
-  border-radius:50% 50% 50% 50%;opacity:0;filter:blur(1px)}
-.ship.smile .ship-flame{opacity:1;animation:fblue .3s infinite alternate;
-  background:radial-gradient(ellipse at center top,#00ccff,#0066cc,transparent)}
-.ship.fire .ship-flame{opacity:1;width:30px;height:36px;animation:fred .15s infinite alternate;
-  background:radial-gradient(ellipse at center top,#ffaa00,#ff4400,transparent)}
-
-@keyframes fblue{0%{height:24px;filter:blur(1px) drop-shadow(0 0 6px #0088ff)}
-  100%{height:28px;filter:blur(2px) drop-shadow(0 0 10px #00aaff)}}
-@keyframes fred{0%{height:36px;filter:blur(1px) drop-shadow(0 0 8px #ff4400)}
-  100%{height:42px;filter:blur(2px) drop-shadow(0 0 16px #ff6600)}}
-
-.ship.smile .ship-helmet{box-shadow:0 0 14px rgba(0,150,255,.6)}
-.ship.fire .ship-helmet{box-shadow:0 0 24px rgba(255,80,0,.7);animation:pfire .4s infinite alternate}
-@keyframes pfire{0%{box-shadow:0 0 24px rgba(255,80,0,.7)}100%{box-shadow:0 0 40px rgba(255,120,0,.9)}}
-
-/* Sweat mark on overtaken */
-.ship .sweat{position:absolute;top:2px;right:-4px;font-size:14px;opacity:0;transition:opacity .3s;z-index:10}
-.ship.overtaken .sweat{opacity:1;animation:sweatDrop 1s ease-in-out 2}
-@keyframes sweatDrop{0%{transform:translateY(0)}50%{transform:translateY(4px)}100%{transform:translateY(0)}}
-
-.ship .name-plate{margin-top:2px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:bold;
-  background:rgba(0,0,0,.8);border:1px solid rgba(100,150,255,.3);white-space:nowrap;text-align:center}
-
-/* Track decorations */
-.planet{position:absolute;border-radius:50%;pointer-events:none}
-.planet-label{position:absolute;color:rgba(150,180,255,.5);font-size:10px;font-family:'Orbitron',sans-serif;
-  white-space:nowrap;pointer-events:none}
-.star-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(150,180,255,.25);
-  box-shadow:0 0 3px rgba(150,180,255,.15);pointer-events:none}
-
-/* ===== Ranking Panel ===== */
-.rank-panel{background:linear-gradient(180deg,rgba(12,16,45,.95),rgba(8,12,35,.95));
-  border:1px solid rgba(80,100,200,.25);border-radius:14px;padding:14px;flex:1;overflow-y:auto;
-  box-shadow:0 0 30px rgba(20,40,120,.1)}
-.rank-panel::-webkit-scrollbar{width:4px}
-.rank-panel::-webkit-scrollbar-thumb{background:rgba(100,150,255,.2);border-radius:2px}
-.rank-title{font-size:.9rem;color:#8899cc;text-align:center;letter-spacing:.15em;margin-bottom:10px;
-  font-weight:bold}
-
-.rank-item{display:flex;align-items:center;gap:8px;padding:7px 10px;margin-bottom:5px;
-  border-radius:10px;background:rgba(25,35,70,.5);border:1px solid rgba(80,100,200,.12);
-  transition:all .3s;cursor:pointer}
-.rank-item:hover{background:rgba(35,50,100,.6);border-color:rgba(100,150,255,.3)}
-.rank-item.gold{border-color:rgba(255,215,0,.35);background:linear-gradient(135deg,rgba(60,50,15,.5),rgba(40,35,15,.3))}
-.rank-item.silver{border-color:rgba(192,192,192,.25);background:rgba(45,45,55,.4)}
-.rank-item.bronze{border-color:rgba(205,127,50,.25);background:rgba(50,38,25,.4)}
-.rank-num{font-size:1rem;font-weight:900;width:24px;text-align:center;font-family:'Orbitron',sans-serif}
-.rank-item.gold .rank-num{color:#ffd700}
-.rank-item.silver .rank-num{color:#c0c0c0}
-.rank-item.bronze .rank-num{color:#cd7f32}
-.rank-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:16px;border:2px solid rgba(100,150,255,.3);background:rgba(20,30,60,.8);flex-shrink:0}
-.rank-info{flex:1;min-width:0}
-.rank-name{font-size:.8rem;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rank-detail{font-size:.65rem;color:#6677aa;margin-top:1px}
-.rank-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:3px;overflow:hidden}
-.rank-bar-fill{height:100%;border-radius:2px;transition:width 2s ease}
-.rank-pts{font-size:.95rem;font-weight:900;color:#00d4ff;white-space:nowrap;font-family:'Orbitron',sans-serif}
-.rank-pts small{font-size:.55rem;color:#446;font-weight:normal}
-
-/* ===== Detail Panel ===== */
-.detail-panel{background:linear-gradient(180deg,rgba(12,16,45,.95),rgba(8,12,35,.95));
-  border:1px solid rgba(80,100,200,.25);border-radius:14px;padding:14px;flex-shrink:0;
-  box-shadow:0 0 30px rgba(20,40,120,.1)}
-.detail-title{font-size:.75rem;color:#6677aa;letter-spacing:.1em;margin-bottom:8px}
-.detail-classroom{font-size:1rem;font-weight:900;color:#ffd700;margin-bottom:8px}
-.detail-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.detail-label{font-size:.7rem;color:#6688aa}
-.detail-val{font-size:.85rem;font-weight:bold}
-.detail-formula{text-align:center;padding:8px;background:rgba(0,150,255,.08);border-radius:8px;
-  border:1px solid rgba(0,150,255,.15);margin-top:6px}
-.detail-formula .hw{color:#4dabf7;font-weight:bold;font-size:1.1rem}
-.detail-formula .q{color:#69db7c;font-weight:bold;font-size:1.1rem}
-.detail-formula .plus{color:#888;margin:0 6px}
-.detail-formula .eq{color:#888;margin:0 6px}
-.detail-formula .result{color:#ffd700;font-weight:900;font-size:1.3rem;font-family:'Orbitron',sans-serif}
-.detail-status{text-align:center;margin-top:8px;padding:6px;border-radius:8px;font-size:.85rem;font-weight:bold}
-.detail-status.fire{background:rgba(255,80,0,.15);color:#ff6b35;border:1px solid rgba(255,80,0,.2)}
-.detail-status.smile{background:rgba(0,150,255,.1);color:#4dabf7;border:1px solid rgba(0,150,255,.2)}
-.detail-status.normal{background:rgba(100,100,100,.1);color:#888;border:1px solid rgba(100,100,100,.15)}
-
-/* ===== Result Button ===== */
-.result-btn-wrap{position:relative;z-index:20;text-align:center;padding:0 12px;margin-top:-4px}
-.result-btn{padding:12px 40px;font-size:1.1rem;font-weight:900;font-family:'Noto Sans JP',sans-serif;
-  border:2px solid rgba(255,215,0,.5);border-radius:14px;cursor:pointer;position:relative;overflow:hidden;
-  background:linear-gradient(135deg,rgba(80,60,0,.6),rgba(120,80,0,.4));color:#ffd700;
-  box-shadow:0 0 30px rgba(255,180,0,.15),inset 0 0 20px rgba(255,215,0,.05);
-  transition:all .3s;letter-spacing:.1em}
-.result-btn:hover{background:linear-gradient(135deg,rgba(100,75,0,.7),rgba(140,95,0,.5));
-  box-shadow:0 0 50px rgba(255,180,0,.25);transform:scale(1.03)}
-.result-btn:active{transform:scale(.98)}
-.result-btn.disabled{opacity:.4;pointer-events:none}
-.result-btn .shimmer{position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);
-  animation:shimmer 3s infinite}
-@keyframes shimmer{0%{left:-100%}100%{left:200%}}
-
-/* ===== Overlay ===== */
-.anim-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;pointer-events:none;opacity:0;
-  transition:opacity .3s}
-.anim-overlay.active{opacity:1}
-.warp-line{position:absolute;width:2px;background:linear-gradient(180deg,transparent,#00aaff,transparent);
-  animation:warp .6s linear forwards;opacity:0}
-@keyframes warp{0%{opacity:0;transform:translateY(-100vh)}50%{opacity:1}100%{opacity:0;transform:translateY(100vh)}}
-
-/* ===== Tooltip ===== */
-.tooltip{position:fixed;z-index:200;background:rgba(10,14,40,.95);border:1px solid rgba(80,120,255,.4);
-  border-radius:10px;padding:12px;pointer-events:none;opacity:0;transition:opacity .2s;min-width:180px;
-  backdrop-filter:blur(8px)}
-.tooltip.show{opacity:1}
-.tooltip h3{font-size:.85rem;color:#ffd700;margin-bottom:6px}
-.tooltip .stat{font-size:.7rem;color:#8899bb;margin:3px 0}
-.tooltip .stat span{color:#00d4ff;font-weight:bold}
-
-/* ===== Responsive ===== */
-@media(max-width:900px){
-  .main{flex-direction:column;height:auto}
-  .sidebar{width:100%;flex-direction:row;gap:8px}
-  .rank-panel{max-height:300px}
-  .map-container{min-height:400px}
-}
-@media(max-width:600px){
-  .sidebar{flex-direction:column}
-  .header{flex-direction:column;gap:6px}
-}
-</style>
+        /* SVG Path Animation */
+        .dash-path {
+            stroke-dasharray: 15;
+            animation: dash 30s linear infinite backwards;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -300;
+            }
+        }
+        
+        /* Planets */
+        .planet {
+            border-radius: 50%;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.2);
+        }
+    </style>
 </head>
-<body>
+<body class="w-screen h-screen">
 
-<div class="bg-space"><canvas id="starsCanvas"></canvas></div>
-<div class="bg-nebula"></div>
+    <div class="space-bg"></div>
+    <div class="stars"></div>
 
-<!-- Header -->
-<div class="header">
-  <div class="header-left">
-    <div>
-      <div class="header-logo">Galaxy Race</div>
-      <div class="header-sub">~A Journey Through the Stars~</div>
-    </div>
-  </div>
-  <div class="header-week" id="weekLabel">先々週 / 週間ランキング</div>
-</div>
+    <!-- Background Path & Planets -->
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <!-- SVG Path -->
+        <svg class="absolute w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+            <path d="M 100 700 Q 300 650, 400 500 T 800 450 T 1100 150" fill="none" stroke="rgba(253, 224, 71, 0.5)" stroke-width="4" stroke-linecap="round" class="dash-path" />
+            
+            <!-- Path Stars -->
+            <circle cx="200" cy="650" r="4" fill="#fde047" filter="drop-shadow(0 0 5px #fde047)"/>
+            <circle cx="280" cy="600" r="4" fill="#fde047" filter="drop-shadow(0 0 5px #fde047)"/>
+            <circle cx="360" cy="530" r="5" fill="#fde047" filter="drop-shadow(0 0 8px #fde047)"/>
+            <circle cx="500" cy="480" r="4" fill="#fde047" filter="drop-shadow(0 0 5px #fde047)"/>
+            <circle cx="650" cy="460" r="4" fill="#fde047" filter="drop-shadow(0 0 5px #fde047)"/>
+            <circle cx="750" cy="450" r="5" fill="#fde047" filter="drop-shadow(0 0 8px #fde047)"/>
+            <circle cx="950" cy="280" r="4" fill="#fde047" filter="drop-shadow(0 0 5px #fde047)"/>
+            <circle cx="1020" cy="220" r="4" fill="#fde047" filter="drop-shadow(0 0 5px #fde047)"/>
+        </svg>
 
-<!-- Leader Banner -->
-<div class="leader-banner" id="leaderBanner">
-  <div class="crown-icon">👑</div>
-  <div class="leader-info">
-    <div class="leader-label">トップを走る宇宙船</div>
-    <div class="leader-name" id="leaderName">---</div>
-    <div class="leader-pts" id="leaderPts">0pts</div>
-  </div>
-  <div class="crown-icon">👑</div>
-</div>
+        <!-- Start Planet -->
+        <div class="absolute bottom-[-5%] left-[-2%] w-64 h-64 planet bg-gradient-to-br from-blue-400 to-blue-900"></div>
+        
+        <!-- Middle Planets -->
+        <div class="absolute top-[30%] left-[20%] w-24 h-24 planet bg-gradient-to-br from-gray-300 to-gray-800"></div>
+        <div class="absolute top-[40%] right-[30%] w-16 h-16 planet bg-gradient-to-br from-purple-400 to-indigo-900 ring-4 ring-purple-500/30"></div>
+        <div class="absolute bottom-[20%] right-[40%] w-20 h-20 planet bg-gradient-to-br from-cyan-300 to-blue-800"></div>
 
-<!-- Result Button -->
-<div class="result-btn-wrap">
-  <button class="result-btn" id="resultBtn" onclick="showResult()">
-    <span class="shimmer"></span>
-    🚀 先週の結果を見る
-  </button>
-</div>
-
-<!-- Main -->
-<div class="main">
-  <!-- Map -->
-  <div class="map-area">
-    <div class="map-container" id="mapContainer">
-      <div class="bg-img"></div>
-      <div class="zoom-bar">
-        <button onclick="zoomIn()">+</button>
-        <button onclick="zoomOut()">-</button>
-        <div class="zlabel" id="zoomLabel">100%</div>
-        <button onclick="zoomReset()" style="font-size:.7rem">↺</button>
-        <button onclick="zoomToLeaders()" style="font-size:.7rem">🏁</button>
-      </div>
-      <div class="track-wrap" id="trackWrap">
-        <div class="track" id="track"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="rank-panel" id="rankPanel">
-      <div class="rank-title" id="rankTitle">🏆 先々週ランキング</div>
-      <div id="rankList"></div>
-    </div>
-    <div class="detail-panel" id="detailPanel">
-      <div class="detail-title">今週のポイント内訳</div>
-      <div id="detailContent">
-        <div style="text-align:center;color:#446;font-size:.75rem;padding:12px 0">教室をクリックで表示</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Tooltip -->
-<div class="tooltip" id="tooltip"></div>
-<!-- Animation overlay -->
-<div class="anim-overlay" id="animOverlay"></div>
-
-<script>
-// ===== Data =====
-const classrooms = [
-  {name:'王寺',   hw1:85,q1:72,hw2:88,q2:75, emoji:'👨‍🚀'},
-  {name:'学園前', hw1:92,q1:81,hw2:89,q2:78, emoji:'👩‍🚀'},
-  {name:'京田辺', hw1:78,q1:68,hw2:82,q2:72, emoji:'🧑‍🚀'},
-  {name:'郡山',   hw1:81,q1:74,hw2:84,q2:76, emoji:'👨‍🏫'},
-  {name:'五位堂', hw1:89,q1:77,hw2:91,q2:80, emoji:'👩‍🏫'},
-  {name:'高の原', hw1:87,q1:73,hw2:85,q2:71, emoji:'🧑‍🏫'},
-  {name:'高田',   hw1:83,q1:69,hw2:86,q2:74, emoji:'👨‍🔬'},
-  {name:'桜井',   hw1:79,q1:65,hw2:81,q2:70, emoji:'👩‍🔬'},
-  {name:'神宮',   hw1:91,q1:79,hw2:93,q2:82, emoji:'🦸‍♂️'},
-  {name:'生駒',   hw1:86,q1:75,hw2:88,q2:78, emoji:'🦸‍♀️'},
-  {name:'西大寺', hw1:80,q1:70,hw2:83,q2:73, emoji:'🧙‍♂️'},
-  {name:'登美ヶ丘',hw1:84,q1:72,hw2:87,q2:76, emoji:'🧙‍♀️'},
-  {name:'奈良',   hw1:82,q1:71,hw2:85,q2:75, emoji:'🦹‍♂️'},
-  {name:'八木',   hw1:88,q1:76,hw2:90,q2:79, emoji:'🦹‍♀️'},
-  {name:'木津南', hw1:76,q1:67,hw2:80,q2:69, emoji:'🧑‍✈️'},
-];
-
-const shipColors = [
-  '#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9',
-  '#4dabf7','#748ffc','#9775fa','#da77f2','#f783ac',
-  '#ff8787','#e599f7','#66d9e8','#a9e34b','#ffe066'
-];
-
-// ===== State =====
-let zoomLevel = 1, panX = 0, panY = 0;
-let isDragging = false, dragStartX, dragStartY, dragPanStartX, dragPanStartY;
-const ZOOM_MIN = 0.8, ZOOM_MAX = 5, ZOOM_STEP = 0.5;
-const TRACK_W = 2800, TRACK_H = 600;
-let trackPoints = [];
-let currentWeek = 1; // Start at week 1
-let hasRevealed = false;
-let ships = []; // indexed by classroom index
-let selectedClassroom = null;
-
-// Planets decoration data
-const planets = [
-  {idx:80, size:30, color:'#556b9a', ring:true, label:'第1惑星'},
-  {idx:180, size:22, color:'#7a5c3a', ring:false, label:'第2惑星'},
-  {idx:300, size:40, color:'#3a6a5a', ring:true, label:'第3惑星'},
-  {idx:420, size:26, color:'#8a4a5a', ring:false, label:'第4惑星'},
-  {idx:530, size:50, color:'#aa8833', ring:true, label:'伝説の黄金惑星'},
-];
-
-// ===== Points =====
-function getCumulative(c, week) {
-  if (week === 1) return c.hw1 + c.q1;
-  return c.hw1 + c.q1 + c.hw2 + c.q2;
-}
-function getWeekPts(c, week) {
-  if (week === 1) return {hw: c.hw1, q: c.q1, total: c.hw1 + c.q1};
-  return {hw: c.hw2, q: c.q2, total: c.hw2 + c.q2};
-}
-function getStatus(weekTotal) {
-  if (weekTotal >= 160) return 'fire';
-  if (weekTotal >= 100) return 'smile';
-  return 'normal';
-}
-
-// ===== Track =====
-function genTrack(n) {
-  const pts = [];
-  for (let i = 0; i < n; i++) {
-    const t = i / (n - 1);
-    const x = 50 + t * (TRACK_W - 100);
-    const y = 50 + (TRACK_H - 100) / 2 + Math.sin(t * Math.PI * 3) * ((TRACK_H - 100) * 0.35);
-    pts.push({x, y});
-  }
-  return pts;
-}
-
-function getTrackPos(cumPts, minP, maxP) {
-  const range = maxP - minP;
-  if (range === 0) return trackPoints[Math.floor(trackPoints.length * 0.5)];
-  const r = (cumPts - minP) / range;
-  const tr = 0.12 + r * 0.88;
-  const idx = Math.min(Math.floor(tr * (trackPoints.length - 1)), trackPoints.length - 1);
-  return trackPoints[idx];
-}
-
-// ===== Init =====
-function init() {
-  initStars();
-  trackPoints = genTrack(600);
-  const track = document.getElementById('track');
-  track.style.width = TRACK_W + 'px';
-  track.style.height = TRACK_H + 'px';
-  renderDecorations();
-  renderShips();
-  updateRanking();
-  updateLeader();
-  initPan();
-  applyZoom();
-}
-
-// ===== Stars =====
-function initStars() {
-  const c = document.getElementById('starsCanvas');
-  const ctx = c.getContext('2d');
-  c.width = window.innerWidth; c.height = window.innerHeight;
-  const stars = Array.from({length:400}, () => ({
-    x: Math.random()*c.width, y: Math.random()*c.height,
-    r: Math.random()*1.8+.2, a: Math.random(), s: Math.random()*.015+.003
-  }));
-  (function draw(){
-    ctx.clearRect(0,0,c.width,c.height);
-    stars.forEach(s => {
-      s.a += s.s;
-      const alpha = .2 + Math.sin(s.a) * .4;
-      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(180,200,255,${Math.max(0,alpha)})`; ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  })();
-}
-
-// ===== Decorations =====
-function renderDecorations() {
-  const track = document.getElementById('track');
-
-  // Star dots along path
-  for (let i = 0; i < trackPoints.length; i += 5) {
-    const d = document.createElement('div');
-    d.className = 'star-dot';
-    d.style.left = trackPoints[i].x + 'px';
-    d.style.top = trackPoints[i].y + 'px';
-    track.appendChild(d);
-  }
-
-  // Planets
-  planets.forEach(p => {
-    if (p.idx >= trackPoints.length) return;
-    const pt = trackPoints[p.idx];
-    const el = document.createElement('div');
-    el.className = 'planet';
-    el.style.left = (pt.x - p.size/2) + 'px';
-    el.style.top = (pt.y - p.size/2 - 40) + 'px';
-    el.style.width = p.size + 'px'; el.style.height = p.size + 'px';
-    el.style.background = `radial-gradient(circle at 35% 35%, ${p.color}, ${p.color}88, ${p.color}44)`;
-    el.style.boxShadow = `0 0 ${p.size/2}px ${p.color}66`;
-    if (p.ring) {
-      el.style.border = `1px solid ${p.color}88`;
-      el.style.boxShadow += `, 0 0 0 ${p.size*0.15}px ${p.color}22`;
-    }
-    track.appendChild(el);
-
-    const lbl = document.createElement('div');
-    lbl.className = 'planet-label';
-    lbl.textContent = p.label;
-    lbl.style.left = (pt.x - 30) + 'px';
-    lbl.style.top = (pt.y - p.size/2 - 56) + 'px';
-    track.appendChild(lbl);
-  });
-}
-
-// ===== Render Ships =====
-function renderShips() {
-  const track = document.getElementById('track');
-  track.querySelectorAll('.ship').forEach(s => s.remove());
-  ships = [];
-
-  const allCum = classrooms.map(c => getCumulative(c, currentWeek));
-  const maxP = Math.max(...allCum);
-  const minP = Math.min(...allCum);
-
-  const indexed = classrooms.map((c, i) => ({c, i, cum: allCum[i]}));
-  indexed.sort((a, b) => a.cum - b.cum);
-
-  const occupied = [];
-
-  indexed.forEach(({c, i, cum}) => {
-    const wp = getWeekPts(c, currentWeek);
-    const status = getStatus(wp.total);
-    const pos = getTrackPos(cum, minP, maxP);
-
-    // Avoid overlap
-    let bestOff = 0, bestDist = 0;
-    for (let off = -80; off <= 80; off += 12) {
-      const ty = pos.y + off;
-      let closest = Infinity;
-      occupied.forEach(o => {
-        const d = Math.sqrt((o.x - pos.x)**2 + (o.y - ty)**2);
-        if (d < closest) closest = d;
-      });
-      if (closest > bestDist) { bestDist = closest; bestOff = off; }
-    }
-    occupied.push({x: pos.x, y: pos.y + bestOff});
-
-    const ship = document.createElement('div');
-    ship.className = `ship ${status}`;
-    ship.style.left = (pos.x - 32) + 'px';
-    ship.style.top = (pos.y - 40 + bestOff) + 'px';
-    ship.dataset.idx = i;
-
-    const col = shipColors[i];
-    ship.innerHTML = `
-      <div class="ship-body">
-        <div class="ship-rocket" style="border-color:${col}44">
-          <div class="wing-l" style="background:linear-gradient(180deg,${col}88,${col}44)"></div>
-          <div class="wing-r" style="background:linear-gradient(180deg,${col}88,${col}44)"></div>
+        <!-- Golden Planet -->
+        <div class="absolute top-[5%] right-[25%] w-40 h-40 planet bg-gradient-to-br from-yellow-200 via-yellow-500 to-yellow-800 shadow-[0_0_50px_rgba(234,179,8,0.6)] flex items-center justify-center flex-col">
+            <span class="text-xs font-bold text-yellow-100 mt-44 whitespace-nowrap drop-shadow-md">伝説の黄金惑星</span>
         </div>
-        <div class="ship-helmet" style="border-color:${col}">
-          <div class="face">${c.emoji}</div>
-        </div>
-        <div class="ship-flame"></div>
-      </div>
-      <div class="sweat">💦</div>
-      <div class="name-plate" style="border-color:${col}66">${c.name}教室</div>
-    `;
-
-    ship.addEventListener('mouseenter', e => showTooltip(e, i));
-    ship.addEventListener('mouseleave', hideTooltip);
-    ship.addEventListener('click', () => selectClassroom(i));
-    ship.addEventListener('touchstart', e => { e.preventDefault(); selectClassroom(i); }, {passive:false});
-
-    track.appendChild(ship);
-    ships[i] = ship;
-  });
-}
-
-// ===== Move ships to new week without re-creating =====
-function moveShipsToWeek(week) {
-  currentWeek = week;
-  const allCum = classrooms.map(c => getCumulative(c, week));
-  const maxP = Math.max(...allCum);
-  const minP = Math.min(...allCum);
-
-  // Get old positions for overtake detection
-  const oldOrder = classrooms.map((c, i) => ({i, cum: getCumulative(c, week === 2 ? 1 : 2)}))
-    .sort((a,b) => b.cum - a.cum).map(x => x.i);
-  const newOrder = classrooms.map((c, i) => ({i, cum: allCum[i]}))
-    .sort((a,b) => b.cum - a.cum).map(x => x.i);
-
-  // Detect overtaken
-  const overtaken = new Set();
-  newOrder.forEach((id, newRank) => {
-    const oldRank = oldOrder.indexOf(id);
-    if (oldRank < newRank) overtaken.add(id);
-  });
-
-  const indexed = classrooms.map((c, i) => ({c, i, cum: allCum[i]}));
-  indexed.sort((a, b) => a.cum - b.cum);
-
-  const occupied = [];
-  indexed.forEach(({c, i, cum}) => {
-    const wp = getWeekPts(c, week);
-    const status = getStatus(wp.total);
-    const pos = getTrackPos(cum, minP, maxP);
-
-    let bestOff = 0, bestDist = 0;
-    for (let off = -80; off <= 80; off += 12) {
-      const ty = pos.y + off;
-      let closest = Infinity;
-      occupied.forEach(o => {
-        const d = Math.sqrt((o.x - pos.x)**2 + (o.y - ty)**2);
-        if (d < closest) closest = d;
-      });
-      if (closest > bestDist) { bestDist = closest; bestOff = off; }
-    }
-    occupied.push({x: pos.x, y: pos.y + bestOff});
-
-    if (ships[i]) {
-      ships[i].style.left = (pos.x - 32) + 'px';
-      ships[i].style.top = (pos.y - 40 + bestOff) + 'px';
-      ships[i].className = `ship ${status}`;
-      if (overtaken.has(i)) {
-        ships[i].classList.add('overtaken');
-        setTimeout(() => ships[i]?.classList.remove('overtaken'), 3000);
-      }
-    }
-  });
-}
-
-// ===== Tooltip =====
-function showTooltip(e, i) {
-  const c = classrooms[i];
-  const wp = getWeekPts(c, currentWeek);
-  const cum = getCumulative(c, currentWeek);
-  const status = getStatus(wp.total);
-  const label = status === 'fire' ? '🔥 激アツ！' : status === 'smile' ? '😊 好調！' : '🚀 前進中';
-
-  const tip = document.getElementById('tooltip');
-  tip.innerHTML = `
-    <h3>${c.emoji} ${c.name}教室</h3>
-    <div class="stat">状態: <span>${label}</span></div>
-    <div class="stat">宿題実施率: <span>${wp.hw}%</span></div>
-    <div class="stat">80点以上率: <span>${wp.q}%</span></div>
-    <div class="stat" style="border-top:1px solid rgba(80,120,255,.15);margin-top:5px;padding-top:5px">
-      今週獲得: <span>${wp.total}pt</span></div>
-    <div class="stat">累計: <span>${cum}pt</span></div>
-  `;
-  tip.classList.add('show');
-  const rect = e.target.closest('.ship').getBoundingClientRect();
-  tip.style.left = Math.min(rect.right + 10, window.innerWidth - 200) + 'px';
-  tip.style.top = Math.max(rect.top - 20, 10) + 'px';
-}
-function hideTooltip() { document.getElementById('tooltip').classList.remove('show'); }
-
-// ===== Select classroom for detail =====
-function selectClassroom(i) {
-  selectedClassroom = i;
-  updateDetail();
-  // Highlight
-  ships.forEach((s, idx) => { if (s) s.style.opacity = idx === i ? '1' : '.5'; });
-  setTimeout(() => { ships.forEach(s => { if (s) s.style.opacity = '1'; }); }, 2000);
-}
-
-function updateDetail() {
-  const el = document.getElementById('detailContent');
-  if (selectedClassroom === null) {
-    el.innerHTML = '<div style="text-align:center;color:#446;font-size:.75rem;padding:12px 0">教室をクリックで表示</div>';
-    return;
-  }
-  const c = classrooms[selectedClassroom];
-  const wp = getWeekPts(c, currentWeek);
-  const cum = getCumulative(c, currentWeek);
-  const status = getStatus(wp.total);
-  const statusLabel = status === 'fire' ? '🔥 激アツ！ +' + wp.total + 'マス前進！' :
-    status === 'smile' ? '😊 好調！ +' + wp.total + 'マス前進！' : '🚀 +' + wp.total + 'マス前進';
-
-  el.innerHTML = `
-    <div class="detail-classroom">${c.emoji} ${c.name}教室</div>
-    <div class="detail-row"><span class="detail-label">宿題実施率</span><span class="detail-val" style="color:#4dabf7">${wp.hw}%</span></div>
-    <div class="detail-row"><span class="detail-label">小テスト80点以上率</span><span class="detail-val" style="color:#69db7c">${wp.q}%</span></div>
-    <div class="detail-formula">
-      <span class="hw">${wp.hw}</span><small style="color:#4dabf7">pts</small>
-      <span class="plus">+</span>
-      <span class="q">${wp.q}</span><small style="color:#69db7c">pts</small>
-      <span class="eq">=</span>
-      <span class="result">${wp.total}</span><small style="color:#ffd700">pts!</small>
     </div>
-    <div class="detail-status ${status}">${statusLabel}</div>
-    <div style="text-align:center;margin-top:6px;font-size:.65rem;color:#446">累計: ${cum}pt</div>
-  `;
-}
 
-// ===== Ranking =====
-function updateRanking() {
-  const list = document.getElementById('rankList');
-  const sorted = classrooms.map((c, i) => ({
-    ...c, i, cum: getCumulative(c, currentWeek), week: getWeekPts(c, currentWeek)
-  })).sort((a, b) => b.week.total - a.week.total);
-
-  const maxW = sorted[0].week.total;
-  const minW = sorted[sorted.length - 1].week.total;
-  const range = maxW - minW || 1;
-
-  list.innerHTML = sorted.map((c, rank) => {
-    const medal = rank === 0 ? 'gold' : rank === 1 ? 'silver' : rank === 2 ? 'bronze' : '';
-    const pct = ((c.week.total - minW) / range * 75 + 25).toFixed(0);
-    const barCol = c.week.total >= 160 ? '#ff6b35' : c.week.total >= 100 ? '#4dabf7' : '#334';
-    return `
-      <div class="rank-item ${medal}" onclick="selectClassroom(${c.i});focusShip(${c.i})"
-           onmouseenter="hlShip(${c.i})" onmouseleave="unhlShip(${c.i})">
-        <div class="rank-num">${rank + 1}</div>
-        <div class="rank-avatar" style="border-color:${shipColors[c.i]}">${c.emoji}</div>
-        <div class="rank-info">
-          <div class="rank-name">${c.name}</div>
-          <div class="rank-detail">宿題${c.week.hw}% テスト${c.week.q}%</div>
-          <div class="rank-bar"><div class="rank-bar-fill" style="width:${pct}%;background:${barCol}"></div></div>
+    <!-- UI Overlay -->
+    <div class="relative z-10 w-full h-full flex p-6">
+        
+        <!-- Left Nav -->
+        <div class="w-20 flex flex-col gap-6 items-center pt-24">
+            <button class="w-14 h-14 rounded-full bg-blue-500/20 border-2 border-blue-400 text-blue-300 flex flex-col items-center justify-center hover:bg-blue-500/40 transition">
+                <i class="fas fa-home text-xl mb-1"></i>
+            </button>
+            <button class="w-14 h-14 rounded-full bg-slate-800/80 border border-slate-600 text-slate-300 flex flex-col items-center justify-center hover:bg-slate-700 transition">
+                <i class="fas fa-book text-xl mb-1"></i>
+                <span class="text-[10px]">宿題</span>
+            </button>
+            <button class="w-14 h-14 rounded-full bg-slate-800/80 border border-slate-600 text-slate-300 flex flex-col items-center justify-center hover:bg-slate-700 transition">
+                <i class="fas fa-pencil-alt text-xl mb-1"></i>
+                <span class="text-[10px]">クイズ</span>
+            </button>
         </div>
-        <div class="rank-pts">${c.week.total}<small>pt</small></div>
-      </div>`;
-  }).join('');
 
-  const weekLabel = currentWeek === 1 ? '先々週' : '先週';
-  document.getElementById('rankTitle').textContent = `🏆 ${weekLabel}ランキング`;
-}
+        <!-- Main Content Area -->
+        <div class="flex-1 relative">
+            
+            <!-- Top Left Info -->
+            <div class="absolute top-0 left-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center border-2 border-white/20 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                        <i class="fas fa-globe-asia text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-wider text-blue-100 drop-shadow-lg">Galaxy Race</h1>
+                        <p class="text-sm text-blue-300/80 tracking-widest">- A Journey Through the Stars -</p>
+                    </div>
+                </div>
+                <div class="mt-4 text-lg font-bold text-white drop-shadow-md">
+                    第3週 / 週間ランキング
+                </div>
+            </div>
 
-function hlShip(i) { if (ships[i]) { ships[i].style.transform = 'scale(1.3)'; ships[i].style.zIndex = '30'; } }
-function unhlShip(i) { if (ships[i]) { ships[i].style.transform = ''; ships[i].style.zIndex = ''; } }
+            <!-- Top Center Leading Starship -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2">
+                <div class="glass-panel rounded-2xl px-8 py-3 flex items-center gap-6 border-yellow-500/40 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs text-yellow-200/80 mb-1">トップを走る星船</span>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-crown text-3xl text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]"></i>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-bold">1A教室</span>
+                                <span class="text-xl gold-text font-bold leading-none">320pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Avatar -->
+                    <div class="relative w-16 h-16 rounded-full border-2 border-yellow-400 overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.5)] fire-eyes bg-slate-700">
+                        <!-- Placeholder for teacher face -->
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4" alt="先生" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
 
-function focusShip(i) {
-  if (!ships[i]) return;
-  const sx = parseFloat(ships[i].style.left) + 32;
-  const sy = parseFloat(ships[i].style.top) + 40;
-  zoomLevel = 2.5;
-  const w = document.getElementById('trackWrap');
-  panX = -(sx * zoomLevel - w.clientWidth / 2);
-  panY = -(sy * zoomLevel - w.clientHeight / 2);
-  clampPan(); applyZoom();
-}
+            <!-- Spaceships on the map -->
+            
+            <!-- 2A -->
+            <div class="absolute bottom-[20%] left-[10%] flex flex-col items-center group cursor-pointer hover:scale-110 transition-transform">
+                <div class="bg-slate-900/80 border border-slate-500 rounded-full px-3 py-1 text-sm font-bold mb-2 backdrop-blur-sm">〇〇教室</div>
+                <div class="relative">
+                    <i class="fas fa-rocket text-5xl text-gray-300 spaceship-icon -rotate-[10deg]"></i>
+                    <div class="absolute top-[25%] left-[20%] w-6 h-6 rounded-full overflow-hidden border border-white/50 bg-slate-800">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jack" class="w-full h-full">
+                    </div>
+                </div>
+            </div>
 
-// ===== Leader =====
-function updateLeader() {
-  const sorted = classrooms.map(c => ({name: c.name, cum: getCumulative(c, currentWeek), emoji: c.emoji}))
-    .sort((a, b) => b.cum - a.cum);
-  document.getElementById('leaderName').textContent = sorted[0].name + '教室';
-  document.getElementById('leaderPts').textContent = sorted[0].cum + 'pts';
-}
+            <!-- 1D (Sweat mark) -->
+            <div class="absolute bottom-[25%] left-[25%] flex flex-col items-center group cursor-pointer hover:scale-110 transition-transform">
+                <div class="bg-slate-900/80 border border-blue-400 rounded-full px-3 py-1 text-sm font-bold mb-2 backdrop-blur-sm">〇〇教室</div>
+                <div class="relative">
+                    <i class="fas fa-rocket text-5xl text-blue-300 spaceship-icon spaceship-flame-blue -rotate-[5deg]"></i>
+                    <div class="absolute top-[25%] left-[20%] w-6 h-6 rounded-full overflow-hidden border border-white/50 bg-slate-800">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mia" class="w-full h-full">
+                    </div>
+                    <div class="absolute -top-3 -right-2 text-2xl animate-bounce">💦</div>
+                </div>
+            </div>
 
-// ===== Show Result (main action) =====
-function showResult() {
-  if (hasRevealed) return;
-  hasRevealed = true;
-  const btn = document.getElementById('resultBtn');
-  btn.classList.add('disabled');
-  btn.textContent = '🚀 結果発表中...';
+            <!-- 1C -->
+            <div class="absolute bottom-[10%] left-[45%] flex flex-col items-center group cursor-pointer hover:scale-110 transition-transform">
+                <div class="bg-slate-900/80 border border-slate-500 rounded-full px-3 py-1 text-sm font-bold mb-2 backdrop-blur-sm">〇〇教室</div>
+                <div class="relative">
+                    <i class="fas fa-rocket text-5xl text-gray-300 spaceship-icon rotate-[5deg]"></i>
+                    <div class="absolute top-[25%] left-[20%] w-6 h-6 rounded-full overflow-hidden border border-white/50 bg-slate-800">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Leo" class="w-full h-full">
+                    </div>
+                </div>
+            </div>
 
-  document.getElementById('weekLabel').textContent = '先週 / 週間ランキング';
+            <!-- 1B -->
+            <div class="absolute top-[45%] left-[30%] flex flex-col items-center group cursor-pointer hover:scale-110 transition-transform">
+                <div class="bg-slate-900/80 border border-blue-400 rounded-full px-3 py-1 text-sm font-bold mb-2 backdrop-blur-sm shadow-[0_0_10px_rgba(59,130,246,0.5)]">〇B教室</div>
+                <div class="relative">
+                    <i class="fas fa-rocket text-6xl text-blue-200 spaceship-icon spaceship-flame-blue rotate-[10deg]"></i>
+                    <div class="absolute top-[25%] left-[20%] w-8 h-8 rounded-full overflow-hidden border-2 border-blue-300 bg-slate-800">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sara" class="w-full h-full">
+                    </div>
+                    <i class="fas fa-sparkles absolute -top-4 -right-4 text-yellow-300 text-xl animate-pulse"></i>
+                </div>
+            </div>
 
-  // Warp effect
-  const overlay = document.getElementById('animOverlay');
-  overlay.classList.add('active');
-  for (let i = 0; i < 40; i++) {
-    const line = document.createElement('div');
-    line.className = 'warp-line';
-    line.style.left = Math.random() * 100 + '%';
-    line.style.height = (Math.random() * 200 + 100) + 'px';
-    line.style.animationDelay = Math.random() * 0.5 + 's';
-    overlay.appendChild(line);
-  }
+            <!-- 1A (Top) -->
+            <div class="absolute top-[25%] right-[25%] flex flex-col items-center group cursor-pointer hover:scale-110 transition-transform z-20">
+                <div class="bg-slate-900/90 border-2 border-red-500 rounded-full px-4 py-1 text-sm font-bold mb-2 backdrop-blur-sm shadow-[0_0_15px_rgba(239,68,68,0.6)] flex flex-col items-center">
+                    <span class="text-[10px] text-red-300">Class 1A</span>
+                    <span>Captain: Mr. Sato</span>
+                </div>
+                <div class="relative">
+                    <i class="fas fa-rocket text-7xl text-red-500 spaceship-icon spaceship-flame-red rotate-[15deg] drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]"></i>
+                    <div class="absolute top-[25%] left-[20%] w-10 h-10 rounded-full overflow-hidden border-2 border-red-400 fire-eyes bg-slate-800">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4" class="w-full h-full">
+                    </div>
+                    <!-- Thruster flames -->
+                    <div class="absolute -bottom-6 -left-6 text-4xl rotate-45 animate-pulse drop-shadow-[0_0_10px_rgba(249,115,22,1)]">🔥</div>
+                    <div class="absolute -bottom-8 -left-2 text-3xl rotate-45 animate-pulse animation-delay-100 drop-shadow-[0_0_10px_rgba(249,115,22,1)]">🔥</div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-500 rounded-full px-3 py-1 text-xs font-bold mt-4 backdrop-blur-sm">1A教室</div>
+            </div>
 
-  setTimeout(() => {
-    // Move ships to week 2
-    moveShipsToWeek(2);
-    updateRanking();
-    updateLeader();
-    if (selectedClassroom !== null) updateDetail();
+        </div>
 
-    setTimeout(() => {
-      overlay.classList.remove('active');
-      overlay.innerHTML = '';
-      btn.textContent = '✅ 先週の結果';
-    }, 1000);
-  }, 800);
-}
+        <!-- Right Sidebar -->
+        <div class="w-80 flex flex-col gap-4 z-20">
+            
+            <!-- Ranking Board -->
+            <div class="glass-panel rounded-2xl overflow-hidden flex-1 flex flex-col border-t-2 border-t-blue-400">
+                <div class="bg-blue-900/40 py-3 px-4 border-b border-blue-500/30 text-center">
+                    <h2 class="font-bold text-lg tracking-widest text-blue-50 drop-shadow-md">ランキングボード</h2>
+                </div>
+                
+                <div class="flex-1 p-4 flex flex-col gap-3">
+                    <div class="text-xs text-blue-200 mb-1">▼ 1A教室</div>
+                    
+                    <!-- Rank 1 -->
+                    <div class="bg-yellow-900/40 border border-yellow-500/50 rounded-xl p-2 flex items-center gap-3 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                        <div class="w-6 text-center font-bold text-yellow-400 text-lg">1<i class="fas fa-crown text-xs absolute -mt-2 -ml-1"></i></div>
+                        <div class="relative w-10 h-10 rounded-full border border-yellow-400 overflow-hidden fire-eyes bg-slate-700 shrink-0">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4" class="w-full h-full">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-sm">1A <span class="float-right text-yellow-400">320 pts</span></div>
+                            <div class="text-[10px] text-gray-300">Mr. Sato <span class="float-right bg-red-600 text-white px-1.5 py-0.5 rounded animate-pulse">激アツ!</span></div>
+                        </div>
+                    </div>
 
-// ===== Zoom & Pan =====
-function applyZoom() {
-  document.getElementById('track').style.transform = `translate(${panX}px,${panY}px) scale(${zoomLevel})`;
-  document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
-}
-function clampPan() {
-  const w = document.getElementById('trackWrap');
-  const wW = w.clientWidth, wH = w.clientHeight;
-  panX = Math.max(Math.min(panX, 20), Math.min(-(TRACK_W * zoomLevel - wW), 20));
-  panY = Math.max(Math.min(panY, 20), Math.min(-(TRACK_H * zoomLevel - wH), 20));
-}
-function zoomIn() {
-  const w = document.getElementById('trackWrap');
-  const cx = w.clientWidth/2, cy = w.clientHeight/2, oldZ = zoomLevel;
-  zoomLevel = Math.min(zoomLevel + ZOOM_STEP, ZOOM_MAX);
-  const s = zoomLevel / oldZ; panX = cx - s*(cx - panX); panY = cy - s*(cy - panY);
-  clampPan(); applyZoom();
-}
-function zoomOut() {
-  const w = document.getElementById('trackWrap');
-  const cx = w.clientWidth/2, cy = w.clientHeight/2, oldZ = zoomLevel;
-  zoomLevel = Math.max(zoomLevel - ZOOM_STEP, ZOOM_MIN);
-  const s = zoomLevel / oldZ; panX = cx - s*(cx - panX); panY = cy - s*(cy - panY);
-  clampPan(); applyZoom();
-}
-function zoomReset() { zoomLevel = 1; panX = 0; panY = 0; applyZoom(); }
-function zoomToLeaders() {
-  const top3 = classrooms.map((c,i) => ({i, cum: getCumulative(c, currentWeek)}))
-    .sort((a,b) => b.cum - a.cum).slice(0, 3);
-  let sx=0, sy=0;
-  top3.forEach(({i}) => { if(ships[i]){sx+=parseFloat(ships[i].style.left)+32; sy+=parseFloat(ships[i].style.top)+40;} });
-  const cx = sx/3, cy = sy/3; zoomLevel = 2.5;
-  const w = document.getElementById('trackWrap');
-  panX = -(cx*zoomLevel - w.clientWidth/2); panY = -(cy*zoomLevel - w.clientHeight/2);
-  clampPan(); applyZoom();
-}
+                    <!-- Rank 2 -->
+                    <div class="bg-blue-900/30 border border-blue-500/30 rounded-xl p-2 flex items-center gap-3">
+                        <div class="w-6 text-center font-bold text-gray-300 text-lg">2<i class="fas fa-medal text-xs absolute -mt-2 -ml-1 text-slate-300"></i></div>
+                        <div class="relative w-10 h-10 rounded-full border border-blue-400 overflow-hidden bg-slate-700 shrink-0">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sara" class="w-full h-full">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-sm">1B <span class="float-right text-blue-300">210 pts</span></div>
+                            <div class="text-[10px] text-gray-300">Ms. Tanaka <span class="float-right bg-blue-600 text-white px-1.5 py-0.5 rounded">笑顔!</span></div>
+                        </div>
+                    </div>
 
-// ===== Drag =====
-function initPan() {
-  const w = document.getElementById('trackWrap');
-  w.addEventListener('mousedown', e => {
-    if (e.target.closest('.ship')) return;
-    isDragging = true; dragStartX = e.clientX; dragStartY = e.clientY;
-    dragPanStartX = panX; dragPanStartY = panY; e.preventDefault();
-  });
-  window.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    panX = dragPanStartX + (e.clientX - dragStartX);
-    panY = dragPanStartY + (e.clientY - dragStartY);
-    clampPan(); applyZoom();
-  });
-  window.addEventListener('mouseup', () => isDragging = false);
+                    <!-- Rank 3 -->
+                    <div class="bg-slate-800/50 border border-slate-600/50 rounded-xl p-2 flex items-center gap-3">
+                        <div class="w-6 text-center font-bold text-orange-400 text-lg">3<i class="fas fa-medal text-xs absolute -mt-2 -ml-1 text-orange-400"></i></div>
+                        <div class="relative w-10 h-10 rounded-full border border-slate-500 overflow-hidden bg-slate-700 shrink-0">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Leo" class="w-full h-full">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-sm">1C <span class="float-right text-slate-300">190 pts</span></div>
+                            <div class="text-[10px] text-gray-400">Mr. Ito <span class="float-right text-slate-400">通常</span></div>
+                        </div>
+                    </div>
 
-  w.addEventListener('touchstart', e => {
-    if (e.target.closest('.ship')) return;
-    if (e.touches.length === 1) {
-      isDragging = true;
-      dragStartX = e.touches[0].clientX; dragStartY = e.touches[0].clientY;
-      dragPanStartX = panX; dragPanStartY = panY;
-    }
-  }, {passive:true});
-  w.addEventListener('touchmove', e => {
-    if (!isDragging || e.touches.length !== 1) return;
-    panX = dragPanStartX + (e.touches[0].clientX - dragStartX);
-    panY = dragPanStartY + (e.touches[0].clientY - dragStartY);
-    clampPan(); applyZoom(); e.preventDefault();
-  }, {passive:false});
-  w.addEventListener('touchend', () => isDragging = false);
+                    <!-- Rank 4 -->
+                    <div class="bg-slate-800/30 rounded-xl p-2 flex items-center gap-3">
+                        <div class="w-6 text-center font-bold text-slate-400">4</div>
+                        <div class="relative w-8 h-8 rounded-full border border-slate-600 overflow-hidden bg-slate-700 shrink-0">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mia" class="w-full h-full">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-sm text-slate-300">1D <span class="float-right text-slate-400">150 pts</span></div>
+                            <div class="text-[10px] text-gray-500">Ms. Kudo <span class="float-right text-slate-500">通常</span></div>
+                        </div>
+                    </div>
 
-  w.addEventListener('wheel', e => {
-    e.preventDefault();
-    const rect = w.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top, oldZ = zoomLevel;
-    zoomLevel = e.deltaY < 0 ? Math.min(zoomLevel+.3,ZOOM_MAX) : Math.max(zoomLevel-.3,ZOOM_MIN);
-    const s = zoomLevel/oldZ; panX = mx - s*(mx-panX); panY = my - s*(my-panY);
-    clampPan(); applyZoom();
-  }, {passive:false});
-}
+                    <!-- Rank 5 -->
+                    <div class="bg-slate-800/30 rounded-xl p-2 flex items-center gap-3">
+                        <div class="w-6 text-center font-bold text-slate-400">5</div>
+                        <div class="relative w-8 h-8 rounded-full border border-slate-600 overflow-hidden bg-slate-700 shrink-0 opacity-50">
+                            <i class="fas fa-user-astronaut w-full h-full flex items-center justify-center text-slate-400"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-sm text-slate-400">2A <span class="float-right text-slate-500">110 pts</span></div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
 
-// ===== Resize =====
-window.addEventListener('resize', () => {
-  trackPoints = genTrack(600);
-  const track = document.getElementById('track');
-  track.querySelectorAll('.star-dot,.planet,.planet-label').forEach(e => e.remove());
-  renderDecorations();
-  renderShips();
-  if (currentWeek === 2) moveShipsToWeek(2);
-  clampPan(); applyZoom();
-  const c = document.getElementById('starsCanvas');
-  c.width = window.innerWidth; c.height = window.innerHeight;
-});
+            <!-- Geki-Atsu Status & Point Breakdown -->
+            <div class="glass-panel rounded-2xl overflow-hidden border border-red-500/30 p-4 relative">
+                <!-- Gekiatsu Graphic -->
+                <div class="absolute -top-4 -right-4 opacity-20 pointer-events-none">
+                    <i class="fas fa-fire text-8xl text-red-500"></i>
+                </div>
+                
+                <div class="flex flex-col items-center mb-4 relative z-10">
+                    <div class="relative mb-2">
+                        <i class="fas fa-rocket text-5xl text-red-500 spaceship-icon drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"></i>
+                        <div class="absolute top-[25%] left-[20%] w-7 h-7 rounded-full overflow-hidden border border-red-400 fire-eyes bg-slate-800">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4" class="w-full h-full">
+                        </div>
+                        <div class="absolute -bottom-4 -left-2 text-2xl rotate-45 animate-pulse drop-shadow-[0_0_10px_rgba(249,115,22,1)]">🔥</div>
+                    </div>
+                    <div class="text-sm font-bold text-center">現在 <span class="text-red-400 text-base">激アツ!</span> 状態:</div>
+                    <div class="text-xl font-bold gold-text">+170マス前進!</div>
+                </div>
 
-window.addEventListener('DOMContentLoaded', init);
-</script>
+                <div class="border-t border-slate-600 pt-3 relative z-10">
+                    <h3 class="text-xs font-bold text-slate-300 mb-2">今週のポイント内訳</h3>
+                    <div class="text-sm font-bold mb-1">1A教室</div>
+                    <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                        <span>宿題実施率</span>
+                        <span>小テスト80点以上率</span>
+                    </div>
+                    <div class="flex items-end justify-between font-bold">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-lg">95%</span>
+                            <span class="text-xs text-slate-400">+</span>
+                            <span class="text-lg">85%</span>
+                            <span class="text-xs text-slate-400">=</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl gold-text leading-none">180pts!</div>
+                            <div class="text-[10px] text-slate-400">(This Week)</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                        <span class="ml-1">(95pts)</span>
+                        <span class="mr-14">(85pts)</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </body>
 </html>
