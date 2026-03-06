@@ -3,232 +3,307 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Galaxy Race - 星々を巡る旅</title>
+<title>Galaxy Race ~星々を巡る旅~</title>
 <style>
-/* ===== Reset & Base ===== */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI','Hiragino Sans',sans-serif;background:#0a0e27;color:#fff;overflow-x:hidden}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;background:#050818;color:#fff;overflow-x:hidden;min-height:100vh}
 
-/* ===== Stars Background ===== */
-.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.stars canvas{width:100%;height:100%}
+/* ===== Background layers ===== */
+.bg-space{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+.bg-space canvas{width:100%;height:100%}
+.bg-nebula{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 15% 30%, rgba(100,30,180,.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 60%, rgba(20,60,180,.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 80%, rgba(180,50,80,.08) 0%, transparent 40%)}
 
 /* ===== Header ===== */
-header{position:relative;z-index:10;text-align:center;padding:20px 10px 10px;
-  background:linear-gradient(180deg,rgba(10,14,39,.95),transparent)}
-header h1{font-size:2rem;background:linear-gradient(90deg,#ffd700,#ff6b6b,#00d4ff);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;letter-spacing:.1em}
-header p{font-size:.85rem;color:#8899cc;margin-top:4px}
+.header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;background:linear-gradient(180deg,rgba(8,12,35,.95) 0%,rgba(8,12,35,.6) 80%,transparent 100%)}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:900;
+  background:linear-gradient(135deg,#6dd5fa,#2980b9,#6dd5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-sub{font-size:.7rem;color:#5577aa}
+.header-week{font-size:.85rem;color:#88aadd;background:rgba(40,60,120,.5);padding:4px 14px;border-radius:20px;
+  border:1px solid rgba(100,150,255,.2)}
 
-/* ===== Top Banner ===== */
-.top-banner{position:relative;z-index:10;text-align:center;padding:8px;
-  background:linear-gradient(90deg,rgba(255,215,0,.15),rgba(255,215,0,.05));
-  border-bottom:1px solid rgba(255,215,0,.3)}
-.top-banner .crown{font-size:1.4rem}
-.top-banner .leader-name{font-size:1.1rem;font-weight:bold;color:#ffd700;margin:0 8px}
-.top-banner .leader-pts{font-size:.85rem;color:#ccaa44}
+/* ===== Top Leader Banner ===== */
+.leader-banner{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:16px;
+  padding:10px 20px;
+  background:linear-gradient(90deg,transparent,rgba(255,215,0,.08),rgba(255,215,0,.12),rgba(255,215,0,.08),transparent)}
+.leader-banner .crown-icon{font-size:2rem}
+.leader-banner .leader-info{text-align:center}
+.leader-banner .leader-label{font-size:.65rem;color:#aa9944;letter-spacing:.2em}
+.leader-banner .leader-name{font-size:1.3rem;font-weight:900;color:#ffd700;font-family:'Orbitron','Noto Sans JP',sans-serif}
+.leader-banner .leader-pts{font-size:.9rem;color:#ccaa44;font-weight:bold}
 
-/* ===== Layout ===== */
-.app-container{position:relative;z-index:10;display:flex;flex-wrap:wrap;gap:10px;padding:10px;max-width:1400px;margin:0 auto}
-.map-section{flex:1 1 70%;min-width:320px}
-.ranking-section{flex:1 1 25%;min-width:280px;max-width:380px}
+/* ===== Main Layout ===== */
+.main{position:relative;z-index:10;display:flex;gap:12px;padding:8px 12px;height:calc(100vh - 120px);min-height:500px}
+.map-area{flex:1;display:flex;flex-direction:column;gap:8px}
+.sidebar{width:320px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
 
 /* ===== Map ===== */
-.map-container{position:relative;background:radial-gradient(ellipse at 30% 40%,#1a1040 0%,#0a0e27 60%,#050818 100%);
-  border-radius:16px;border:1px solid rgba(100,120,255,.2);overflow:hidden;padding:0;min-height:520px;cursor:grab}
+.map-container{flex:1;position:relative;border-radius:16px;overflow:hidden;cursor:grab;
+  background:radial-gradient(ellipse at 25% 35%,#1a1050 0%,#0c1030 40%,#060818 100%);
+  border:1px solid rgba(80,100,200,.25);box-shadow:0 0 40px rgba(30,50,150,.15)}
 .map-container:active{cursor:grabbing}
-.map-container::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;
-  background:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1200&q=30') center/cover no-repeat;
-  opacity:.12;pointer-events:none}
+.map-container .bg-img{position:absolute;top:0;left:0;width:100%;height:100%;
+  background:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1400&q=40') center/cover;
+  opacity:.15;pointer-events:none}
 
-/* Zoom controls */
-.zoom-controls{position:absolute;top:10px;right:10px;z-index:20;display:flex;flex-direction:column;gap:4px}
-.zoom-controls button{width:36px;height:36px;border:1px solid rgba(100,150,255,.3);
-  background:rgba(15,20,50,.85);color:#aaccff;border-radius:8px;cursor:pointer;font-size:1.2rem;
-  display:flex;align-items:center;justify-content:center;transition:all .2s}
-.zoom-controls button:hover{background:rgba(40,60,120,.8);border-color:rgba(100,180,255,.6)}
-.zoom-label{font-size:.65rem;color:#6677aa;text-align:center;padding:2px 0}
+/* Zoom bar */
+.zoom-bar{position:absolute;top:10px;right:10px;z-index:20;display:flex;flex-direction:column;gap:3px}
+.zoom-bar button{width:32px;height:32px;border:1px solid rgba(100,150,255,.25);background:rgba(10,15,40,.85);
+  color:#88aadd;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
+.zoom-bar button:hover{background:rgba(30,50,100,.9);color:#aaccff}
+.zoom-bar .zlabel{font-size:.55rem;color:#556;text-align:center}
 
 /* Track */
-.track-wrapper{width:100%;height:520px;overflow:hidden;position:relative}
-.track{position:relative;transform-origin:0 0;transition:transform .3s ease}
-.track-path{position:absolute;top:0;left:0;width:100%;height:100%}
+.track-wrap{width:100%;height:100%;overflow:hidden;position:relative}
+.track{position:absolute;transform-origin:0 0;transition:transform .4s cubic-bezier(.25,.46,.45,.94)}
 
-/* Ship (koma) */
+/* ===== Ships ===== */
 .ship{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;
-  transition:all 1.5s cubic-bezier(.25,.46,.45,.94);z-index:5}
-.ship:hover{z-index:20;transform:scale(1.3)}
-.ship .helmet{width:44px;height:44px;border-radius:50%;
-  background:linear-gradient(135deg,#2a3a6a,#1a2040);border:2px solid #4466aa;
-  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.ship .helmet .visor{width:32px;height:32px;border-radius:50%;overflow:hidden;
-  border:1px solid rgba(100,200,255,.4)}
-.ship .helmet .visor img{width:100%;height:100%;object-fit:cover}
-.ship .helmet .visor .initials{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:bold;background:linear-gradient(135deg,#334,#556);color:#aaccff}
-.ship .name-plate{margin-top:3px;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:bold;
-  background:rgba(0,0,0,.7);border:1px solid rgba(100,150,255,.3);white-space:nowrap;text-align:center}
+  transition:left 2.5s cubic-bezier(.25,.46,.45,.94), top 2.5s cubic-bezier(.25,.46,.45,.94);z-index:5}
+.ship:hover{z-index:30;transform:scale(1.25)!important}
+.ship-body{position:relative;width:64px;height:64px}
+.ship-rocket{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:56px;height:40px;
+  background:linear-gradient(180deg,#3a4a8a 0%,#2a3060 100%);border-radius:40% 40% 20% 20%;
+  border:1px solid rgba(100,150,255,.3);display:flex;align-items:center;justify-content:center}
+.ship-rocket::before{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:10px solid #4a5a9a}
+.ship-rocket .wing-l,.ship-rocket .wing-r{position:absolute;bottom:2px;width:12px;height:18px;
+  background:linear-gradient(180deg,#4a5a9a,#3a4a7a);border-radius:0 0 4px 4px}
+.ship-rocket .wing-l{left:-8px;transform:skewY(15deg)}
+.ship-rocket .wing-r{right:-8px;transform:skewY(-15deg)}
 
-/* Flame effects */
-.ship .flame{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:16px;height:20px;opacity:0}
-.ship.normal .flame{opacity:0}
-.ship.smile .flame{opacity:1;animation:flame-blue .3s infinite alternate}
-.ship.fire .flame{opacity:1;width:24px;height:30px;animation:flame-red .15s infinite alternate}
+.ship-helmet{position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:40px;
+  border-radius:50%;background:linear-gradient(135deg,#3a4a8a,#252f60);border:2px solid;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:2}
+.ship-helmet .face{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:20px;background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(0,0,0,.1))}
 
-@keyframes flame-blue{
-  0%{filter:drop-shadow(0 0 4px #0088ff);background:radial-gradient(ellipse,#00aaff,#0044aa,transparent)}
-  100%{filter:drop-shadow(0 0 8px #00aaff);background:radial-gradient(ellipse,#44ccff,#0066cc,transparent)}
-}
-@keyframes flame-red{
-  0%{filter:drop-shadow(0 0 6px #ff4400);background:radial-gradient(ellipse,#ff6600,#cc0000,transparent)}
-  100%{filter:drop-shadow(0 0 12px #ff6600);background:radial-gradient(ellipse,#ffaa00,#ff2200,transparent)}
-}
+.ship-flame{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:20px;height:24px;
+  border-radius:50% 50% 50% 50%;opacity:0;filter:blur(1px)}
+.ship.smile .ship-flame{opacity:1;animation:fblue .3s infinite alternate;
+  background:radial-gradient(ellipse at center top,#00ccff,#0066cc,transparent)}
+.ship.fire .ship-flame{opacity:1;width:30px;height:36px;animation:fred .15s infinite alternate;
+  background:radial-gradient(ellipse at center top,#ffaa00,#ff4400,transparent)}
 
-/* Aura */
-.ship.smile .helmet{box-shadow:0 0 12px rgba(0,150,255,.5)}
-.ship.fire .helmet{box-shadow:0 0 20px rgba(255,80,0,.7);animation:pulse-fire .5s infinite alternate}
-@keyframes pulse-fire{0%{box-shadow:0 0 20px rgba(255,80,0,.7)}100%{box-shadow:0 0 35px rgba(255,120,0,.9)}}
+@keyframes fblue{0%{height:24px;filter:blur(1px) drop-shadow(0 0 6px #0088ff)}
+  100%{height:28px;filter:blur(2px) drop-shadow(0 0 10px #00aaff)}}
+@keyframes fred{0%{height:36px;filter:blur(1px) drop-shadow(0 0 8px #ff4400)}
+  100%{height:42px;filter:blur(2px) drop-shadow(0 0 16px #ff6600)}}
 
-/* Track dots */
-.track-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(150,180,255,.3);
-  box-shadow:0 0 4px rgba(150,180,255,.2)}
-.track-dot.planet{width:14px;height:14px;border-radius:50%;
-  background:radial-gradient(circle at 30% 30%,#667,#334);box-shadow:0 0 8px rgba(100,150,255,.3)}
-.track-dot.nebula{width:40px;height:40px;border-radius:50%;
-  background:radial-gradient(circle,rgba(150,50,200,.2),transparent);filter:blur(8px)}
+.ship.smile .ship-helmet{box-shadow:0 0 14px rgba(0,150,255,.6)}
+.ship.fire .ship-helmet{box-shadow:0 0 24px rgba(255,80,0,.7);animation:pfire .4s infinite alternate}
+@keyframes pfire{0%{box-shadow:0 0 24px rgba(255,80,0,.7)}100%{box-shadow:0 0 40px rgba(255,120,0,.9)}}
 
-/* ===== Ranking ===== */
-.ranking-panel{background:linear-gradient(180deg,rgba(15,20,50,.95),rgba(10,14,39,.95));
-  border:1px solid rgba(100,120,255,.2);border-radius:16px;padding:16px}
-.ranking-panel h2{font-size:1rem;color:#8899cc;margin-bottom:12px;text-align:center;letter-spacing:.15em}
+/* Sweat mark on overtaken */
+.ship .sweat{position:absolute;top:2px;right:-4px;font-size:14px;opacity:0;transition:opacity .3s;z-index:10}
+.ship.overtaken .sweat{opacity:1;animation:sweatDrop 1s ease-in-out 2}
+@keyframes sweatDrop{0%{transform:translateY(0)}50%{transform:translateY(4px)}100%{transform:translateY(0)}}
 
-.rank-item{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:6px;
-  border-radius:10px;background:rgba(30,40,80,.5);border:1px solid rgba(100,120,255,.1);
+.ship .name-plate{margin-top:2px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:bold;
+  background:rgba(0,0,0,.8);border:1px solid rgba(100,150,255,.3);white-space:nowrap;text-align:center}
+
+/* Track decorations */
+.planet{position:absolute;border-radius:50%;pointer-events:none}
+.planet-label{position:absolute;color:rgba(150,180,255,.5);font-size:10px;font-family:'Orbitron',sans-serif;
+  white-space:nowrap;pointer-events:none}
+.star-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(150,180,255,.25);
+  box-shadow:0 0 3px rgba(150,180,255,.15);pointer-events:none}
+
+/* ===== Ranking Panel ===== */
+.rank-panel{background:linear-gradient(180deg,rgba(12,16,45,.95),rgba(8,12,35,.95));
+  border:1px solid rgba(80,100,200,.25);border-radius:14px;padding:14px;flex:1;overflow-y:auto;
+  box-shadow:0 0 30px rgba(20,40,120,.1)}
+.rank-panel::-webkit-scrollbar{width:4px}
+.rank-panel::-webkit-scrollbar-thumb{background:rgba(100,150,255,.2);border-radius:2px}
+.rank-title{font-size:.9rem;color:#8899cc;text-align:center;letter-spacing:.15em;margin-bottom:10px;
+  font-weight:bold}
+
+.rank-item{display:flex;align-items:center;gap:8px;padding:7px 10px;margin-bottom:5px;
+  border-radius:10px;background:rgba(25,35,70,.5);border:1px solid rgba(80,100,200,.12);
   transition:all .3s;cursor:pointer}
-.rank-item:hover{background:rgba(40,55,110,.6);border-color:rgba(100,150,255,.3)}
-.rank-item.gold{border-color:rgba(255,215,0,.4);background:rgba(60,50,20,.4)}
-.rank-item.silver{border-color:rgba(192,192,192,.3);background:rgba(50,50,60,.4)}
-.rank-item.bronze{border-color:rgba(205,127,50,.3);background:rgba(50,40,30,.4)}
-
-.rank-num{font-size:1.1rem;font-weight:bold;width:28px;text-align:center}
+.rank-item:hover{background:rgba(35,50,100,.6);border-color:rgba(100,150,255,.3)}
+.rank-item.gold{border-color:rgba(255,215,0,.35);background:linear-gradient(135deg,rgba(60,50,15,.5),rgba(40,35,15,.3))}
+.rank-item.silver{border-color:rgba(192,192,192,.25);background:rgba(45,45,55,.4)}
+.rank-item.bronze{border-color:rgba(205,127,50,.25);background:rgba(50,38,25,.4)}
+.rank-num{font-size:1rem;font-weight:900;width:24px;text-align:center;font-family:'Orbitron',sans-serif}
 .rank-item.gold .rank-num{color:#ffd700}
 .rank-item.silver .rank-num{color:#c0c0c0}
 .rank-item.bronze .rank-num{color:#cd7f32}
+.rank-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:16px;border:2px solid rgba(100,150,255,.3);background:rgba(20,30,60,.8);flex-shrink:0}
+.rank-info{flex:1;min-width:0}
+.rank-name{font-size:.8rem;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-detail{font-size:.65rem;color:#6677aa;margin-top:1px}
+.rank-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:3px;overflow:hidden}
+.rank-bar-fill{height:100%;border-radius:2px;transition:width 2s ease}
+.rank-pts{font-size:.95rem;font-weight:900;color:#00d4ff;white-space:nowrap;font-family:'Orbitron',sans-serif}
+.rank-pts small{font-size:.55rem;color:#446;font-weight:normal}
 
-.rank-info{flex:1}
-.rank-name{font-size:.85rem;font-weight:bold}
-.rank-detail{font-size:.7rem;color:#7788aa;margin-top:2px}
-.rank-pts{font-size:1rem;font-weight:bold;color:#00d4ff}
-.rank-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:4px;overflow:hidden}
-.rank-bar-fill{height:100%;border-radius:2px;transition:width 1.5s ease}
+/* ===== Detail Panel ===== */
+.detail-panel{background:linear-gradient(180deg,rgba(12,16,45,.95),rgba(8,12,35,.95));
+  border:1px solid rgba(80,100,200,.25);border-radius:14px;padding:14px;flex-shrink:0;
+  box-shadow:0 0 30px rgba(20,40,120,.1)}
+.detail-title{font-size:.75rem;color:#6677aa;letter-spacing:.1em;margin-bottom:8px}
+.detail-classroom{font-size:1rem;font-weight:900;color:#ffd700;margin-bottom:8px}
+.detail-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.detail-label{font-size:.7rem;color:#6688aa}
+.detail-val{font-size:.85rem;font-weight:bold}
+.detail-formula{text-align:center;padding:8px;background:rgba(0,150,255,.08);border-radius:8px;
+  border:1px solid rgba(0,150,255,.15);margin-top:6px}
+.detail-formula .hw{color:#4dabf7;font-weight:bold;font-size:1.1rem}
+.detail-formula .q{color:#69db7c;font-weight:bold;font-size:1.1rem}
+.detail-formula .plus{color:#888;margin:0 6px}
+.detail-formula .eq{color:#888;margin:0 6px}
+.detail-formula .result{color:#ffd700;font-weight:900;font-size:1.3rem;font-family:'Orbitron',sans-serif}
+.detail-status{text-align:center;margin-top:8px;padding:6px;border-radius:8px;font-size:.85rem;font-weight:bold}
+.detail-status.fire{background:rgba(255,80,0,.15);color:#ff6b35;border:1px solid rgba(255,80,0,.2)}
+.detail-status.smile{background:rgba(0,150,255,.1);color:#4dabf7;border:1px solid rgba(0,150,255,.2)}
+.detail-status.normal{background:rgba(100,100,100,.1);color:#888;border:1px solid rgba(100,100,100,.15)}
+
+/* ===== Result Button ===== */
+.result-btn-wrap{position:relative;z-index:20;text-align:center;padding:0 12px;margin-top:-4px}
+.result-btn{padding:12px 40px;font-size:1.1rem;font-weight:900;font-family:'Noto Sans JP',sans-serif;
+  border:2px solid rgba(255,215,0,.5);border-radius:14px;cursor:pointer;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(80,60,0,.6),rgba(120,80,0,.4));color:#ffd700;
+  box-shadow:0 0 30px rgba(255,180,0,.15),inset 0 0 20px rgba(255,215,0,.05);
+  transition:all .3s;letter-spacing:.1em}
+.result-btn:hover{background:linear-gradient(135deg,rgba(100,75,0,.7),rgba(140,95,0,.5));
+  box-shadow:0 0 50px rgba(255,180,0,.25);transform:scale(1.03)}
+.result-btn:active{transform:scale(.98)}
+.result-btn.disabled{opacity:.4;pointer-events:none}
+.result-btn .shimmer{position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);
+  animation:shimmer 3s infinite}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+
+/* ===== Overlay ===== */
+.anim-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;pointer-events:none;opacity:0;
+  transition:opacity .3s}
+.anim-overlay.active{opacity:1}
+.warp-line{position:absolute;width:2px;background:linear-gradient(180deg,transparent,#00aaff,transparent);
+  animation:warp .6s linear forwards;opacity:0}
+@keyframes warp{0%{opacity:0;transform:translateY(-100vh)}50%{opacity:1}100%{opacity:0;transform:translateY(100vh)}}
 
 /* ===== Tooltip ===== */
-.tooltip{position:fixed;z-index:100;background:rgba(15,20,50,.95);border:1px solid rgba(100,150,255,.4);
-  border-radius:10px;padding:12px;pointer-events:none;opacity:0;transition:opacity .2s;min-width:180px}
+.tooltip{position:fixed;z-index:200;background:rgba(10,14,40,.95);border:1px solid rgba(80,120,255,.4);
+  border-radius:10px;padding:12px;pointer-events:none;opacity:0;transition:opacity .2s;min-width:180px;
+  backdrop-filter:blur(8px)}
 .tooltip.show{opacity:1}
-.tooltip h3{font-size:.9rem;color:#ffd700;margin-bottom:6px}
-.tooltip .stat{font-size:.75rem;color:#aabbdd;margin:3px 0}
+.tooltip h3{font-size:.85rem;color:#ffd700;margin-bottom:6px}
+.tooltip .stat{font-size:.7rem;color:#8899bb;margin:3px 0}
 .tooltip .stat span{color:#00d4ff;font-weight:bold}
 
-/* ===== Week Toggle ===== */
-.week-toggle{text-align:center;margin:10px 0;position:relative;z-index:10}
-.week-toggle button{padding:8px 20px;margin:0 4px;border:1px solid rgba(100,150,255,.3);
-  background:rgba(20,30,60,.8);color:#aabbdd;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .3s}
-.week-toggle button.active{background:rgba(40,60,120,.8);color:#fff;border-color:rgba(100,180,255,.6);
-  box-shadow:0 0 10px rgba(100,150,255,.2)}
-.week-toggle button:hover{border-color:rgba(100,180,255,.5)}
-
-/* ===== Animation overlay ===== */
-.anim-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;pointer-events:none;display:none}
-.anim-overlay.active{display:block}
-.warp-line{position:absolute;width:2px;background:linear-gradient(180deg,transparent,#00aaff,transparent);
-  animation:warp-streak .6s linear forwards;opacity:0}
-@keyframes warp-streak{0%{opacity:0;transform:translateY(-100vh)}50%{opacity:1}100%{opacity:0;transform:translateY(100vh)}}
-
 /* ===== Responsive ===== */
-@media(max-width:768px){
-  .app-container{flex-direction:column}
-  .ranking-section{max-width:100%}
-  header h1{font-size:1.4rem}
-  .track{height:400px}
+@media(max-width:900px){
+  .main{flex-direction:column;height:auto}
+  .sidebar{width:100%;flex-direction:row;gap:8px}
+  .rank-panel{max-height:300px}
+  .map-container{min-height:400px}
+}
+@media(max-width:600px){
+  .sidebar{flex-direction:column}
+  .header{flex-direction:column;gap:6px}
 }
 </style>
 </head>
 <body>
 
-<!-- Stars canvas -->
-<div class="stars"><canvas id="starsCanvas"></canvas></div>
+<div class="bg-space"><canvas id="starsCanvas"></canvas></div>
+<div class="bg-nebula"></div>
 
 <!-- Header -->
-<header>
-  <h1>GALAXY RACE ~星々を巡る旅~</h1>
-  <p>教室対抗すごろくレース</p>
-</header>
-
-<!-- Top banner -->
-<div class="top-banner" id="topBanner">
-  <span class="crown">👑</span>
-  <span class="leader-name" id="leaderName">---</span>
-  <span class="leader-pts" id="leaderPts">0 pts</span>
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="header-logo">Galaxy Race</div>
+      <div class="header-sub">~A Journey Through the Stars~</div>
+    </div>
+  </div>
+  <div class="header-week" id="weekLabel">先々週 / 週間ランキング</div>
 </div>
 
-<!-- Week toggle -->
-<div class="week-toggle">
-  <button id="btnWeek1" onclick="setWeek(1)">先々週</button>
-  <button id="btnWeek2" class="active" onclick="setWeek(2)">先週（最新）</button>
-  <button id="btnAnimate" onclick="playAnimation()">🚀 レース再生</button>
+<!-- Leader Banner -->
+<div class="leader-banner" id="leaderBanner">
+  <div class="crown-icon">👑</div>
+  <div class="leader-info">
+    <div class="leader-label">トップを走る宇宙船</div>
+    <div class="leader-name" id="leaderName">---</div>
+    <div class="leader-pts" id="leaderPts">0pts</div>
+  </div>
+  <div class="crown-icon">👑</div>
 </div>
 
-<!-- Main content -->
-<div class="app-container">
+<!-- Result Button -->
+<div class="result-btn-wrap">
+  <button class="result-btn" id="resultBtn" onclick="showResult()">
+    <span class="shimmer"></span>
+    🚀 先週の結果を見る
+  </button>
+</div>
+
+<!-- Main -->
+<div class="main">
   <!-- Map -->
-  <div class="map-section">
+  <div class="map-area">
     <div class="map-container" id="mapContainer">
-      <div class="zoom-controls">
-        <button onclick="zoomIn()" title="ズームイン">+</button>
-        <button onclick="zoomOut()" title="ズームアウト">-</button>
-        <div class="zoom-label" id="zoomLabel">100%</div>
-        <button onclick="zoomReset()" title="リセット" style="font-size:.75rem">↺</button>
-        <button onclick="zoomToLeaders()" title="先頭グループ" style="font-size:.75rem">🏁</button>
+      <div class="bg-img"></div>
+      <div class="zoom-bar">
+        <button onclick="zoomIn()">+</button>
+        <button onclick="zoomOut()">-</button>
+        <div class="zlabel" id="zoomLabel">100%</div>
+        <button onclick="zoomReset()" style="font-size:.7rem">↺</button>
+        <button onclick="zoomToLeaders()" style="font-size:.7rem">🏁</button>
       </div>
-      <div class="track-wrapper" id="trackWrapper">
+      <div class="track-wrap" id="trackWrap">
         <div class="track" id="track"></div>
       </div>
     </div>
   </div>
-  <!-- Ranking -->
-  <div class="ranking-section">
-    <div class="ranking-panel" id="rankingPanel">
-      <h2>🏆 ランキング</h2>
-      <div id="rankingList"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="rank-panel" id="rankPanel">
+      <div class="rank-title" id="rankTitle">🏆 先々週ランキング</div>
+      <div id="rankList"></div>
+    </div>
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-title">今週のポイント内訳</div>
+      <div id="detailContent">
+        <div style="text-align:center;color:#446;font-size:.75rem;padding:12px 0">教室をクリックで表示</div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Tooltip -->
 <div class="tooltip" id="tooltip"></div>
-
 <!-- Animation overlay -->
 <div class="anim-overlay" id="animOverlay"></div>
 
 <script>
 // ===== Data =====
 const classrooms = [
-  {name:'王寺',   hw1:85,q1:72,hw2:88,q2:75},
-  {name:'学園前', hw1:92,q1:81,hw2:89,q2:78},
-  {name:'京田辺', hw1:78,q1:68,hw2:82,q2:72},
-  {name:'郡山',   hw1:81,q1:74,hw2:84,q2:76},
-  {name:'五位堂', hw1:89,q1:77,hw2:91,q2:80},
-  {name:'高の原', hw1:87,q1:73,hw2:85,q2:71},
-  {name:'高田',   hw1:83,q1:69,hw2:86,q2:74},
-  {name:'桜井',   hw1:79,q1:65,hw2:81,q2:70},
-  {name:'神宮',   hw1:91,q1:79,hw2:93,q2:82},
-  {name:'生駒',   hw1:86,q1:75,hw2:88,q2:78},
-  {name:'西大寺', hw1:80,q1:70,hw2:83,q2:73},
-  {name:'登美ヶ丘',hw1:84,q1:72,hw2:87,q2:76},
-  {name:'奈良',   hw1:82,q1:71,hw2:85,q2:75},
-  {name:'八木',   hw1:88,q1:76,hw2:90,q2:79},
-  {name:'木津南', hw1:76,q1:67,hw2:80,q2:69},
+  {name:'王寺',   hw1:85,q1:72,hw2:88,q2:75, emoji:'👨‍🚀'},
+  {name:'学園前', hw1:92,q1:81,hw2:89,q2:78, emoji:'👩‍🚀'},
+  {name:'京田辺', hw1:78,q1:68,hw2:82,q2:72, emoji:'🧑‍🚀'},
+  {name:'郡山',   hw1:81,q1:74,hw2:84,q2:76, emoji:'👨‍🏫'},
+  {name:'五位堂', hw1:89,q1:77,hw2:91,q2:80, emoji:'👩‍🏫'},
+  {name:'高の原', hw1:87,q1:73,hw2:85,q2:71, emoji:'🧑‍🏫'},
+  {name:'高田',   hw1:83,q1:69,hw2:86,q2:74, emoji:'👨‍🔬'},
+  {name:'桜井',   hw1:79,q1:65,hw2:81,q2:70, emoji:'👩‍🔬'},
+  {name:'神宮',   hw1:91,q1:79,hw2:93,q2:82, emoji:'🦸‍♂️'},
+  {name:'生駒',   hw1:86,q1:75,hw2:88,q2:78, emoji:'🦸‍♀️'},
+  {name:'西大寺', hw1:80,q1:70,hw2:83,q2:73, emoji:'🧙‍♂️'},
+  {name:'登美ヶ丘',hw1:84,q1:72,hw2:87,q2:76, emoji:'🧙‍♀️'},
+  {name:'奈良',   hw1:82,q1:71,hw2:85,q2:75, emoji:'🦹‍♂️'},
+  {name:'八木',   hw1:88,q1:76,hw2:90,q2:79, emoji:'🦹‍♀️'},
+  {name:'木津南', hw1:76,q1:67,hw2:80,q2:69, emoji:'🧑‍✈️'},
 ];
 
 const shipColors = [
@@ -237,137 +312,135 @@ const shipColors = [
   '#ff8787','#e599f7','#66d9e8','#a9e34b','#ffe066'
 ];
 
-// ===== Zoom & Pan state =====
-let zoomLevel = 1;
-let panX = 0, panY = 0;
-let isDragging = false;
-let dragStartX, dragStartY, dragPanStartX, dragPanStartY;
-const ZOOM_MIN = 1, ZOOM_MAX = 5, ZOOM_STEP = 0.5;
+// ===== State =====
+let zoomLevel = 1, panX = 0, panY = 0;
+let isDragging = false, dragStartX, dragStartY, dragPanStartX, dragPanStartY;
+const ZOOM_MIN = 0.8, ZOOM_MAX = 5, ZOOM_STEP = 0.5;
+const TRACK_W = 2800, TRACK_H = 600;
+let trackPoints = [];
+let currentWeek = 1; // Start at week 1
+let hasRevealed = false;
+let ships = []; // indexed by classroom index
+let selectedClassroom = null;
 
-// The track is drawn on a large internal canvas for spreading ships
-const TRACK_WIDTH = 2400;
-const TRACK_HEIGHT = 500;
+// Planets decoration data
+const planets = [
+  {idx:80, size:30, color:'#556b9a', ring:true, label:'第1惑星'},
+  {idx:180, size:22, color:'#7a5c3a', ring:false, label:'第2惑星'},
+  {idx:300, size:40, color:'#3a6a5a', ring:true, label:'第3惑星'},
+  {idx:420, size:26, color:'#8a4a5a', ring:false, label:'第4惑星'},
+  {idx:530, size:50, color:'#aa8833', ring:true, label:'伝説の黄金惑星'},
+];
 
-// ===== Track path =====
-function generateTrackPoints(numPoints) {
+// ===== Points =====
+function getCumulative(c, week) {
+  if (week === 1) return c.hw1 + c.q1;
+  return c.hw1 + c.q1 + c.hw2 + c.q2;
+}
+function getWeekPts(c, week) {
+  if (week === 1) return {hw: c.hw1, q: c.q1, total: c.hw1 + c.q1};
+  return {hw: c.hw2, q: c.q2, total: c.hw2 + c.q2};
+}
+function getStatus(weekTotal) {
+  if (weekTotal >= 160) return 'fire';
+  if (weekTotal >= 100) return 'smile';
+  return 'normal';
+}
+
+// ===== Track =====
+function genTrack(n) {
   const pts = [];
-  for (let i = 0; i < numPoints; i++) {
-    const t = i / (numPoints - 1);
-    const x = 40 + t * (TRACK_WIDTH - 80);
-    const y = 40 + (TRACK_HEIGHT - 80) / 2 + Math.sin(t * Math.PI * 3.5) * ((TRACK_HEIGHT - 80) * 0.38);
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1);
+    const x = 50 + t * (TRACK_W - 100);
+    const y = 50 + (TRACK_H - 100) / 2 + Math.sin(t * Math.PI * 3) * ((TRACK_H - 100) * 0.35);
     pts.push({x, y});
   }
   return pts;
 }
 
-let trackPoints = [];
-let currentWeek = 2;
-let ships = [];
-
-// ===== Points =====
-function getPoints(c, week) {
-  if (week === 1) return c.hw1 + c.q1;
-  return c.hw1 + c.q1 + c.hw2 + c.q2;
-}
-function getWeekPoints(c, week) {
-  if (week === 1) return {hw: c.hw1, q: c.q1, total: c.hw1 + c.q1};
-  return {hw: c.hw2, q: c.q2, total: c.hw2 + c.q2};
-}
-function getStatus(weekPts) {
-  if (weekPts >= 160) return 'fire';
-  if (weekPts >= 100) return 'smile';
-  return 'normal';
+function getTrackPos(cumPts, minP, maxP) {
+  const range = maxP - minP;
+  if (range === 0) return trackPoints[Math.floor(trackPoints.length * 0.5)];
+  const r = (cumPts - minP) / range;
+  const tr = 0.12 + r * 0.88;
+  const idx = Math.min(Math.floor(tr * (trackPoints.length - 1)), trackPoints.length - 1);
+  return trackPoints[idx];
 }
 
-// ===== Initialize =====
+// ===== Init =====
 function init() {
   initStars();
-  trackPoints = generateTrackPoints(600);
+  trackPoints = genTrack(600);
   const track = document.getElementById('track');
-  track.style.width = TRACK_WIDTH + 'px';
-  track.style.height = TRACK_HEIGHT + 'px';
-  renderTrackDots();
+  track.style.width = TRACK_W + 'px';
+  track.style.height = TRACK_H + 'px';
+  renderDecorations();
   renderShips();
   updateRanking();
   updateLeader();
-  initDragPan();
-  applyTransform();
+  initPan();
+  applyZoom();
 }
 
 // ===== Stars =====
 function initStars() {
-  const canvas = document.getElementById('starsCanvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const stars = [];
-  for (let i = 0; i < 300; i++) {
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.5 + 0.3,
-      a: Math.random(),
-      speed: Math.random() * 0.02 + 0.005
-    });
-  }
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const c = document.getElementById('starsCanvas');
+  const ctx = c.getContext('2d');
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  const stars = Array.from({length:400}, () => ({
+    x: Math.random()*c.width, y: Math.random()*c.height,
+    r: Math.random()*1.8+.2, a: Math.random(), s: Math.random()*.015+.003
+  }));
+  (function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
     stars.forEach(s => {
-      s.a += s.speed;
-      const alpha = 0.3 + Math.sin(s.a) * 0.4;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(180,200,255,${Math.max(0, alpha)})`;
-      ctx.fill();
+      s.a += s.s;
+      const alpha = .2 + Math.sin(s.a) * .4;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(180,200,255,${Math.max(0,alpha)})`; ctx.fill();
     });
     requestAnimationFrame(draw);
-  }
-  draw();
+  })();
 }
 
-// ===== Track dots =====
-function renderTrackDots() {
+// ===== Decorations =====
+function renderDecorations() {
   const track = document.getElementById('track');
-  track.querySelectorAll('.track-dot').forEach(d => d.remove());
 
-  for (let i = 0; i < trackPoints.length; i += 6) {
-    const dot = document.createElement('div');
-    dot.className = 'track-dot';
-    dot.style.left = trackPoints[i].x + 'px';
-    dot.style.top = trackPoints[i].y + 'px';
-    track.appendChild(dot);
+  // Star dots along path
+  for (let i = 0; i < trackPoints.length; i += 5) {
+    const d = document.createElement('div');
+    d.className = 'star-dot';
+    d.style.left = trackPoints[i].x + 'px';
+    d.style.top = trackPoints[i].y + 'px';
+    track.appendChild(d);
   }
-  [60, 150, 250, 360, 480, 560].forEach(i => {
-    if (i < trackPoints.length) {
-      const p = document.createElement('div');
-      p.className = 'track-dot planet';
-      p.style.left = (trackPoints[i].x - 4) + 'px';
-      p.style.top = (trackPoints[i].y - 4) + 'px';
-      track.appendChild(p);
-    }
-  });
-  [100, 300, 500].forEach(i => {
-    if (i < trackPoints.length) {
-      const n = document.createElement('div');
-      n.className = 'track-dot nebula';
-      n.style.left = (trackPoints[i].x - 20) + 'px';
-      n.style.top = (trackPoints[i].y - 20) + 'px';
-      track.appendChild(n);
-    }
-  });
-}
 
-// ===== Position on track - spread differences more =====
-function getTrackPosition(totalPts, minPts, maxPts) {
-  // Use a spread mapping: bottom 20% of track for the range below minPts,
-  // remaining 80% for the actual point range between min and max
-  const range = maxPts - minPts;
-  if (range === 0) return trackPoints[Math.floor(trackPoints.length / 2)];
-  const normalizedRatio = (totalPts - minPts) / range; // 0..1 within the actual data range
-  // Map to 15%..100% of track so even last place is visible
-  const trackRatio = 0.15 + normalizedRatio * 0.85;
-  const idx = Math.min(Math.floor(trackRatio * (trackPoints.length - 1)), trackPoints.length - 1);
-  return trackPoints[idx];
+  // Planets
+  planets.forEach(p => {
+    if (p.idx >= trackPoints.length) return;
+    const pt = trackPoints[p.idx];
+    const el = document.createElement('div');
+    el.className = 'planet';
+    el.style.left = (pt.x - p.size/2) + 'px';
+    el.style.top = (pt.y - p.size/2 - 40) + 'px';
+    el.style.width = p.size + 'px'; el.style.height = p.size + 'px';
+    el.style.background = `radial-gradient(circle at 35% 35%, ${p.color}, ${p.color}88, ${p.color}44)`;
+    el.style.boxShadow = `0 0 ${p.size/2}px ${p.color}66`;
+    if (p.ring) {
+      el.style.border = `1px solid ${p.color}88`;
+      el.style.boxShadow += `, 0 0 0 ${p.size*0.15}px ${p.color}22`;
+    }
+    track.appendChild(el);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'planet-label';
+    lbl.textContent = p.label;
+    lbl.style.left = (pt.x - 30) + 'px';
+    lbl.style.top = (pt.y - p.size/2 - 56) + 'px';
+    track.appendChild(lbl);
+  });
 }
 
 // ===== Render Ships =====
@@ -376,363 +449,365 @@ function renderShips() {
   track.querySelectorAll('.ship').forEach(s => s.remove());
   ships = [];
 
-  const allPts = classrooms.map(c => getPoints(c, currentWeek));
-  const maxPts = Math.max(...allPts);
-  const minPts = Math.min(...allPts);
+  const allCum = classrooms.map(c => getCumulative(c, currentWeek));
+  const maxP = Math.max(...allCum);
+  const minP = Math.min(...allCum);
 
-  // Sort by points for stacking (lower z for lower pts)
-  const indexed = classrooms.map((c, i) => ({c, i, pts: allPts[i]}));
-  indexed.sort((a, b) => a.pts - b.pts);
+  const indexed = classrooms.map((c, i) => ({c, i, cum: allCum[i]}));
+  indexed.sort((a, b) => a.cum - b.cum);
 
-  // Track which positions are occupied for smart vertical offset
   const occupied = [];
 
-  indexed.forEach(({c, i, pts}) => {
-    const weekPts = getWeekPoints(c, currentWeek);
-    const status = getStatus(weekPts.total);
-    const pos = getTrackPosition(pts, minPts, maxPts);
+  indexed.forEach(({c, i, cum}) => {
+    const wp = getWeekPts(c, currentWeek);
+    const status = getStatus(wp.total);
+    const pos = getTrackPos(cum, minP, maxP);
 
-    // Smart vertical offset to avoid overlap
-    let bestOffset = 0;
-    let minOverlap = Infinity;
-    for (let tryOff = -60; tryOff <= 60; tryOff += 20) {
-      const testY = pos.y + tryOff;
-      const testX = pos.x;
+    // Avoid overlap
+    let bestOff = 0, bestDist = 0;
+    for (let off = -80; off <= 80; off += 12) {
+      const ty = pos.y + off;
       let closest = Infinity;
       occupied.forEach(o => {
-        const dist = Math.sqrt((o.x - testX) ** 2 + (o.y - testY) ** 2);
-        if (dist < closest) closest = dist;
+        const d = Math.sqrt((o.x - pos.x)**2 + (o.y - ty)**2);
+        if (d < closest) closest = d;
       });
-      if (closest > minOverlap || closest === Infinity) {
-        minOverlap = closest;
-        bestOffset = tryOff;
-      }
+      if (closest > bestDist) { bestDist = closest; bestOff = off; }
     }
-    // Pick the offset with most distance from others
-    let finalOffset = 0;
-    let maxDist = 0;
-    for (let tryOff = -60; tryOff <= 60; tryOff += 15) {
-      const testY = pos.y + tryOff;
-      let closestDist = Infinity;
-      occupied.forEach(o => {
-        const dist = Math.sqrt((o.x - pos.x) ** 2 + (o.y - testY) ** 2);
-        if (dist < closestDist) closestDist = dist;
-      });
-      if (closestDist > maxDist) {
-        maxDist = closestDist;
-        finalOffset = tryOff;
-      }
-    }
-
-    occupied.push({x: pos.x, y: pos.y + finalOffset});
+    occupied.push({x: pos.x, y: pos.y + bestOff});
 
     const ship = document.createElement('div');
     ship.className = `ship ${status}`;
-    ship.style.left = (pos.x - 22) + 'px';
-    ship.style.top = (pos.y - 30 + finalOffset) + 'px';
-    ship.dataset.index = i;
+    ship.style.left = (pos.x - 32) + 'px';
+    ship.style.top = (pos.y - 40 + bestOff) + 'px';
+    ship.dataset.idx = i;
 
+    const col = shipColors[i];
     ship.innerHTML = `
-      <div class="helmet" style="border-color:${shipColors[i]}">
-        <div class="visor">
-          <div class="initials" style="background:linear-gradient(135deg,${shipColors[i]}44,${shipColors[i]}22)">${c.name.slice(0,2)}</div>
+      <div class="ship-body">
+        <div class="ship-rocket" style="border-color:${col}44">
+          <div class="wing-l" style="background:linear-gradient(180deg,${col}88,${col}44)"></div>
+          <div class="wing-r" style="background:linear-gradient(180deg,${col}88,${col}44)"></div>
         </div>
+        <div class="ship-helmet" style="border-color:${col}">
+          <div class="face">${c.emoji}</div>
+        </div>
+        <div class="ship-flame"></div>
       </div>
-      <div class="flame" style="background:radial-gradient(ellipse,${status==='fire'?'#ff6600,#cc0000':'#00aaff,#0044aa'},transparent)"></div>
-      <div class="name-plate" style="border-color:${shipColors[i]}80">${c.name}</div>
+      <div class="sweat">💦</div>
+      <div class="name-plate" style="border-color:${col}66">${c.name}教室</div>
     `;
 
-    ship.addEventListener('mouseenter', e => showTooltip(e, c, weekPts, pts));
+    ship.addEventListener('mouseenter', e => showTooltip(e, i));
     ship.addEventListener('mouseleave', hideTooltip);
-    ship.addEventListener('touchstart', e => { e.preventDefault(); showTooltip(e, c, weekPts, pts); }, {passive:false});
+    ship.addEventListener('click', () => selectClassroom(i));
+    ship.addEventListener('touchstart', e => { e.preventDefault(); selectClassroom(i); }, {passive:false});
 
     track.appendChild(ship);
-    ships[i] = ship; // index by original classroom index
+    ships[i] = ship;
+  });
+}
+
+// ===== Move ships to new week without re-creating =====
+function moveShipsToWeek(week) {
+  currentWeek = week;
+  const allCum = classrooms.map(c => getCumulative(c, week));
+  const maxP = Math.max(...allCum);
+  const minP = Math.min(...allCum);
+
+  // Get old positions for overtake detection
+  const oldOrder = classrooms.map((c, i) => ({i, cum: getCumulative(c, week === 2 ? 1 : 2)}))
+    .sort((a,b) => b.cum - a.cum).map(x => x.i);
+  const newOrder = classrooms.map((c, i) => ({i, cum: allCum[i]}))
+    .sort((a,b) => b.cum - a.cum).map(x => x.i);
+
+  // Detect overtaken
+  const overtaken = new Set();
+  newOrder.forEach((id, newRank) => {
+    const oldRank = oldOrder.indexOf(id);
+    if (oldRank < newRank) overtaken.add(id);
+  });
+
+  const indexed = classrooms.map((c, i) => ({c, i, cum: allCum[i]}));
+  indexed.sort((a, b) => a.cum - b.cum);
+
+  const occupied = [];
+  indexed.forEach(({c, i, cum}) => {
+    const wp = getWeekPts(c, week);
+    const status = getStatus(wp.total);
+    const pos = getTrackPos(cum, minP, maxP);
+
+    let bestOff = 0, bestDist = 0;
+    for (let off = -80; off <= 80; off += 12) {
+      const ty = pos.y + off;
+      let closest = Infinity;
+      occupied.forEach(o => {
+        const d = Math.sqrt((o.x - pos.x)**2 + (o.y - ty)**2);
+        if (d < closest) closest = d;
+      });
+      if (closest > bestDist) { bestDist = closest; bestOff = off; }
+    }
+    occupied.push({x: pos.x, y: pos.y + bestOff});
+
+    if (ships[i]) {
+      ships[i].style.left = (pos.x - 32) + 'px';
+      ships[i].style.top = (pos.y - 40 + bestOff) + 'px';
+      ships[i].className = `ship ${status}`;
+      if (overtaken.has(i)) {
+        ships[i].classList.add('overtaken');
+        setTimeout(() => ships[i]?.classList.remove('overtaken'), 3000);
+      }
+    }
   });
 }
 
 // ===== Tooltip =====
-function showTooltip(e, c, weekPts, totalPts) {
+function showTooltip(e, i) {
+  const c = classrooms[i];
+  const wp = getWeekPts(c, currentWeek);
+  const cum = getCumulative(c, currentWeek);
+  const status = getStatus(wp.total);
+  const label = status === 'fire' ? '🔥 激アツ！' : status === 'smile' ? '😊 好調！' : '🚀 前進中';
+
   const tip = document.getElementById('tooltip');
-  const status = getStatus(weekPts.total);
-  const statusLabel = status === 'fire' ? '🔥 激アツ！' : status === 'smile' ? '😊 好調！' : '🚀 前進中';
-
-  const allPts = classrooms.map(cl => getPoints(cl, currentWeek)).sort((a,b) => b - a);
-  const rank = allPts.indexOf(totalPts) + 1;
-
   tip.innerHTML = `
-    <h3>${c.name}教室</h3>
-    <div class="stat">状態: <span>${statusLabel}</span></div>
-    <div class="stat">宿題実施率: <span>${weekPts.hw}%</span></div>
-    <div class="stat">80点以上率: <span>${weekPts.q}%</span></div>
-    <div class="stat" style="border-top:1px solid rgba(100,150,255,.2);margin-top:6px;padding-top:6px">
-      今週獲得: <span>${weekPts.total}pt</span></div>
-    <div class="stat">累計（マップ位置）: <span>${totalPts}pt</span></div>
+    <h3>${c.emoji} ${c.name}教室</h3>
+    <div class="stat">状態: <span>${label}</span></div>
+    <div class="stat">宿題実施率: <span>${wp.hw}%</span></div>
+    <div class="stat">80点以上率: <span>${wp.q}%</span></div>
+    <div class="stat" style="border-top:1px solid rgba(80,120,255,.15);margin-top:5px;padding-top:5px">
+      今週獲得: <span>${wp.total}pt</span></div>
+    <div class="stat">累計: <span>${cum}pt</span></div>
   `;
   tip.classList.add('show');
   const rect = e.target.closest('.ship').getBoundingClientRect();
   tip.style.left = Math.min(rect.right + 10, window.innerWidth - 200) + 'px';
-  tip.style.top = Math.min(rect.top, window.innerHeight - 160) + 'px';
+  tip.style.top = Math.max(rect.top - 20, 10) + 'px';
 }
-function hideTooltip() {
-  document.getElementById('tooltip').classList.remove('show');
+function hideTooltip() { document.getElementById('tooltip').classList.remove('show'); }
+
+// ===== Select classroom for detail =====
+function selectClassroom(i) {
+  selectedClassroom = i;
+  updateDetail();
+  // Highlight
+  ships.forEach((s, idx) => { if (s) s.style.opacity = idx === i ? '1' : '.5'; });
+  setTimeout(() => { ships.forEach(s => { if (s) s.style.opacity = '1'; }); }, 2000);
+}
+
+function updateDetail() {
+  const el = document.getElementById('detailContent');
+  if (selectedClassroom === null) {
+    el.innerHTML = '<div style="text-align:center;color:#446;font-size:.75rem;padding:12px 0">教室をクリックで表示</div>';
+    return;
+  }
+  const c = classrooms[selectedClassroom];
+  const wp = getWeekPts(c, currentWeek);
+  const cum = getCumulative(c, currentWeek);
+  const status = getStatus(wp.total);
+  const statusLabel = status === 'fire' ? '🔥 激アツ！ +' + wp.total + 'マス前進！' :
+    status === 'smile' ? '😊 好調！ +' + wp.total + 'マス前進！' : '🚀 +' + wp.total + 'マス前進';
+
+  el.innerHTML = `
+    <div class="detail-classroom">${c.emoji} ${c.name}教室</div>
+    <div class="detail-row"><span class="detail-label">宿題実施率</span><span class="detail-val" style="color:#4dabf7">${wp.hw}%</span></div>
+    <div class="detail-row"><span class="detail-label">小テスト80点以上率</span><span class="detail-val" style="color:#69db7c">${wp.q}%</span></div>
+    <div class="detail-formula">
+      <span class="hw">${wp.hw}</span><small style="color:#4dabf7">pts</small>
+      <span class="plus">+</span>
+      <span class="q">${wp.q}</span><small style="color:#69db7c">pts</small>
+      <span class="eq">=</span>
+      <span class="result">${wp.total}</span><small style="color:#ffd700">pts!</small>
+    </div>
+    <div class="detail-status ${status}">${statusLabel}</div>
+    <div style="text-align:center;margin-top:6px;font-size:.65rem;color:#446">累計: ${cum}pt</div>
+  `;
 }
 
 // ===== Ranking =====
 function updateRanking() {
-  const list = document.getElementById('rankingList');
-  // ランキングはその週の獲得ptで並び替え
+  const list = document.getElementById('rankList');
   const sorted = classrooms.map((c, i) => ({
-    ...c, i,
-    cumulative: getPoints(c, currentWeek),
-    week: getWeekPoints(c, currentWeek)
+    ...c, i, cum: getCumulative(c, currentWeek), week: getWeekPts(c, currentWeek)
   })).sort((a, b) => b.week.total - a.week.total);
 
-  const maxPts = sorted[0].week.total;
-  const minPts = sorted[sorted.length - 1].week.total;
-  const range = maxPts - minPts || 1;
-
-  const weekLabel = currentWeek === 1 ? '先々週' : '先週';
+  const maxW = sorted[0].week.total;
+  const minW = sorted[sorted.length - 1].week.total;
+  const range = maxW - minW || 1;
 
   list.innerHTML = sorted.map((c, rank) => {
     const medal = rank === 0 ? 'gold' : rank === 1 ? 'silver' : rank === 2 ? 'bronze' : '';
-    const pct = ((c.week.total - minPts) / range * 80 + 20).toFixed(0);
-    const barColor = c.week.total >= 160 ? '#ff6b35' : c.week.total >= 100 ? '#4dabf7' : '#556';
-    const diff = rank > 0 ? sorted[rank - 1].week.total - c.week.total : 0;
-    const diffText = rank > 0 ? `▲${diff}pt差` : '';
+    const pct = ((c.week.total - minW) / range * 75 + 25).toFixed(0);
+    const barCol = c.week.total >= 160 ? '#ff6b35' : c.week.total >= 100 ? '#4dabf7' : '#334';
     return `
-      <div class="rank-item ${medal}" onmouseenter="highlightShip(${c.i})" onmouseleave="unhighlightShip(${c.i})"
-           onclick="focusShip(${c.i})">
+      <div class="rank-item ${medal}" onclick="selectClassroom(${c.i});focusShip(${c.i})"
+           onmouseenter="hlShip(${c.i})" onmouseleave="unhlShip(${c.i})">
         <div class="rank-num">${rank + 1}</div>
+        <div class="rank-avatar" style="border-color:${shipColors[c.i]}">${c.emoji}</div>
         <div class="rank-info">
-          <div class="rank-name">${c.name}教室 <span style="font-size:.65rem;color:#556;font-weight:normal">累計${c.cumulative}pt</span></div>
-          <div class="rank-detail">宿題${c.week.hw}% / テスト${c.week.q}% ${diffText}</div>
-          <div class="rank-bar"><div class="rank-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+          <div class="rank-name">${c.name}</div>
+          <div class="rank-detail">宿題${c.week.hw}% テスト${c.week.q}%</div>
+          <div class="rank-bar"><div class="rank-bar-fill" style="width:${pct}%;background:${barCol}"></div></div>
         </div>
-        <div class="rank-pts">${c.week.total}<span style="font-size:.6rem;color:#556">pt</span></div>
-      </div>
-    `;
+        <div class="rank-pts">${c.week.total}<small>pt</small></div>
+      </div>`;
   }).join('');
 
-  document.getElementById('rankingPanel').querySelector('h2').textContent = `🏆 ${weekLabel}ランキング`;
+  const weekLabel = currentWeek === 1 ? '先々週' : '先週';
+  document.getElementById('rankTitle').textContent = `🏆 ${weekLabel}ランキング`;
 }
 
-function highlightShip(i) {
-  if (ships[i]) { ships[i].style.transform = 'scale(1.4)'; ships[i].style.zIndex = '30'; }
-}
-function unhighlightShip(i) {
-  if (ships[i]) { ships[i].style.transform = ''; ships[i].style.zIndex = ''; }
-}
+function hlShip(i) { if (ships[i]) { ships[i].style.transform = 'scale(1.3)'; ships[i].style.zIndex = '30'; } }
+function unhlShip(i) { if (ships[i]) { ships[i].style.transform = ''; ships[i].style.zIndex = ''; } }
 
-// ===== Focus on a ship (zoom to it) =====
 function focusShip(i) {
   if (!ships[i]) return;
-  const shipLeft = parseFloat(ships[i].style.left) + 22;
-  const shipTop = parseFloat(ships[i].style.top) + 30;
-  zoomLevel = 3;
-  const wrapper = document.getElementById('trackWrapper');
-  const wW = wrapper.clientWidth;
-  const wH = wrapper.clientHeight;
-  panX = -(shipLeft * zoomLevel - wW / 2);
-  panY = -(shipTop * zoomLevel - wH / 2);
-  clampPan();
-  applyTransform();
+  const sx = parseFloat(ships[i].style.left) + 32;
+  const sy = parseFloat(ships[i].style.top) + 40;
+  zoomLevel = 2.5;
+  const w = document.getElementById('trackWrap');
+  panX = -(sx * zoomLevel - w.clientWidth / 2);
+  panY = -(sy * zoomLevel - w.clientHeight / 2);
+  clampPan(); applyZoom();
 }
 
 // ===== Leader =====
 function updateLeader() {
-  // マップトップ = 累計ポイント1位
-  const sortedMap = classrooms.map(c => ({
-    name: c.name, total: getPoints(c, currentWeek)
-  })).sort((a, b) => b.total - a.total);
-  document.getElementById('leaderName').textContent = sortedMap[0].name + '教室';
-  document.getElementById('leaderPts').textContent = '累計 ' + sortedMap[0].total + ' pts';
+  const sorted = classrooms.map(c => ({name: c.name, cum: getCumulative(c, currentWeek), emoji: c.emoji}))
+    .sort((a, b) => b.cum - a.cum);
+  document.getElementById('leaderName').textContent = sorted[0].name + '教室';
+  document.getElementById('leaderPts').textContent = sorted[0].cum + 'pts';
 }
 
-// ===== Week toggle =====
-function setWeek(w) {
-  currentWeek = w;
-  document.getElementById('btnWeek1').classList.toggle('active', w === 1);
-  document.getElementById('btnWeek2').classList.toggle('active', w === 2);
-  renderShips();
-  updateRanking();
-  updateLeader();
+// ===== Show Result (main action) =====
+function showResult() {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  const btn = document.getElementById('resultBtn');
+  btn.classList.add('disabled');
+  btn.textContent = '🚀 結果発表中...';
+
+  document.getElementById('weekLabel').textContent = '先週 / 週間ランキング';
+
+  // Warp effect
+  const overlay = document.getElementById('animOverlay');
+  overlay.classList.add('active');
+  for (let i = 0; i < 40; i++) {
+    const line = document.createElement('div');
+    line.className = 'warp-line';
+    line.style.left = Math.random() * 100 + '%';
+    line.style.height = (Math.random() * 200 + 100) + 'px';
+    line.style.animationDelay = Math.random() * 0.5 + 's';
+    overlay.appendChild(line);
+  }
+
+  setTimeout(() => {
+    // Move ships to week 2
+    moveShipsToWeek(2);
+    updateRanking();
+    updateLeader();
+    if (selectedClassroom !== null) updateDetail();
+
+    setTimeout(() => {
+      overlay.classList.remove('active');
+      overlay.innerHTML = '';
+      btn.textContent = '✅ 先週の結果';
+    }, 1000);
+  }, 800);
 }
 
 // ===== Zoom & Pan =====
-function applyTransform() {
-  const track = document.getElementById('track');
-  track.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+function applyZoom() {
+  document.getElementById('track').style.transform = `translate(${panX}px,${panY}px) scale(${zoomLevel})`;
   document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
 }
-
 function clampPan() {
-  const wrapper = document.getElementById('trackWrapper');
-  const wW = wrapper.clientWidth;
-  const wH = wrapper.clientHeight;
-  const maxPanX = 0;
-  const minPanX = -(TRACK_WIDTH * zoomLevel - wW);
-  const maxPanY = 20;
-  const minPanY = -(TRACK_HEIGHT * zoomLevel - wH);
-  panX = Math.max(Math.min(panX, maxPanX), Math.min(minPanX, maxPanX));
-  panY = Math.max(Math.min(panY, maxPanY), Math.min(minPanY, maxPanY));
+  const w = document.getElementById('trackWrap');
+  const wW = w.clientWidth, wH = w.clientHeight;
+  panX = Math.max(Math.min(panX, 20), Math.min(-(TRACK_W * zoomLevel - wW), 20));
+  panY = Math.max(Math.min(panY, 20), Math.min(-(TRACK_H * zoomLevel - wH), 20));
 }
-
 function zoomIn() {
-  if (zoomLevel >= ZOOM_MAX) return;
-  // Zoom toward center of viewport
-  const wrapper = document.getElementById('trackWrapper');
-  const cx = wrapper.clientWidth / 2;
-  const cy = wrapper.clientHeight / 2;
-  const oldZ = zoomLevel;
+  const w = document.getElementById('trackWrap');
+  const cx = w.clientWidth/2, cy = w.clientHeight/2, oldZ = zoomLevel;
   zoomLevel = Math.min(zoomLevel + ZOOM_STEP, ZOOM_MAX);
-  const scale = zoomLevel / oldZ;
-  panX = cx - scale * (cx - panX);
-  panY = cy - scale * (cy - panY);
-  clampPan();
-  applyTransform();
+  const s = zoomLevel / oldZ; panX = cx - s*(cx - panX); panY = cy - s*(cy - panY);
+  clampPan(); applyZoom();
 }
-
 function zoomOut() {
-  if (zoomLevel <= ZOOM_MIN) return;
-  const wrapper = document.getElementById('trackWrapper');
-  const cx = wrapper.clientWidth / 2;
-  const cy = wrapper.clientHeight / 2;
-  const oldZ = zoomLevel;
+  const w = document.getElementById('trackWrap');
+  const cx = w.clientWidth/2, cy = w.clientHeight/2, oldZ = zoomLevel;
   zoomLevel = Math.max(zoomLevel - ZOOM_STEP, ZOOM_MIN);
-  const scale = zoomLevel / oldZ;
-  panX = cx - scale * (cx - panX);
-  panY = cy - scale * (cy - panY);
-  clampPan();
-  applyTransform();
+  const s = zoomLevel / oldZ; panX = cx - s*(cx - panX); panY = cy - s*(cy - panY);
+  clampPan(); applyZoom();
 }
-
-function zoomReset() {
-  zoomLevel = 1; panX = 0; panY = 0;
-  applyTransform();
-}
-
+function zoomReset() { zoomLevel = 1; panX = 0; panY = 0; applyZoom(); }
 function zoomToLeaders() {
-  // Zoom to top 3
-  const sorted = classrooms.map((c, i) => ({i, pts: getPoints(c, currentWeek)}))
-    .sort((a, b) => b.pts - a.pts);
-  const top3 = sorted.slice(0, 3);
-  let sumX = 0, sumY = 0;
-  top3.forEach(({i}) => {
-    if (ships[i]) {
-      sumX += parseFloat(ships[i].style.left) + 22;
-      sumY += parseFloat(ships[i].style.top) + 30;
-    }
-  });
-  const cx = sumX / 3, cy = sumY / 3;
-  zoomLevel = 3;
-  const wrapper = document.getElementById('trackWrapper');
-  panX = -(cx * zoomLevel - wrapper.clientWidth / 2);
-  panY = -(cy * zoomLevel - wrapper.clientHeight / 2);
-  clampPan();
-  applyTransform();
+  const top3 = classrooms.map((c,i) => ({i, cum: getCumulative(c, currentWeek)}))
+    .sort((a,b) => b.cum - a.cum).slice(0, 3);
+  let sx=0, sy=0;
+  top3.forEach(({i}) => { if(ships[i]){sx+=parseFloat(ships[i].style.left)+32; sy+=parseFloat(ships[i].style.top)+40;} });
+  const cx = sx/3, cy = sy/3; zoomLevel = 2.5;
+  const w = document.getElementById('trackWrap');
+  panX = -(cx*zoomLevel - w.clientWidth/2); panY = -(cy*zoomLevel - w.clientHeight/2);
+  clampPan(); applyZoom();
 }
 
-// ===== Drag to pan =====
-function initDragPan() {
-  const wrapper = document.getElementById('trackWrapper');
-
-  // Mouse
-  wrapper.addEventListener('mousedown', e => {
-    if (e.target.closest('.ship')) return; // don't drag when clicking ships
-    isDragging = true;
-    dragStartX = e.clientX; dragStartY = e.clientY;
-    dragPanStartX = panX; dragPanStartY = panY;
-    e.preventDefault();
+// ===== Drag =====
+function initPan() {
+  const w = document.getElementById('trackWrap');
+  w.addEventListener('mousedown', e => {
+    if (e.target.closest('.ship')) return;
+    isDragging = true; dragStartX = e.clientX; dragStartY = e.clientY;
+    dragPanStartX = panX; dragPanStartY = panY; e.preventDefault();
   });
   window.addEventListener('mousemove', e => {
     if (!isDragging) return;
     panX = dragPanStartX + (e.clientX - dragStartX);
     panY = dragPanStartY + (e.clientY - dragStartY);
-    clampPan();
-    applyTransform();
+    clampPan(); applyZoom();
   });
-  window.addEventListener('mouseup', () => { isDragging = false; });
+  window.addEventListener('mouseup', () => isDragging = false);
 
-  // Touch
-  wrapper.addEventListener('touchstart', e => {
+  w.addEventListener('touchstart', e => {
     if (e.target.closest('.ship')) return;
     if (e.touches.length === 1) {
       isDragging = true;
       dragStartX = e.touches[0].clientX; dragStartY = e.touches[0].clientY;
       dragPanStartX = panX; dragPanStartY = panY;
     }
-  }, {passive: true});
-  wrapper.addEventListener('touchmove', e => {
+  }, {passive:true});
+  w.addEventListener('touchmove', e => {
     if (!isDragging || e.touches.length !== 1) return;
     panX = dragPanStartX + (e.touches[0].clientX - dragStartX);
     panY = dragPanStartY + (e.touches[0].clientY - dragStartY);
-    clampPan();
-    applyTransform();
+    clampPan(); applyZoom(); e.preventDefault();
+  }, {passive:false});
+  w.addEventListener('touchend', () => isDragging = false);
+
+  w.addEventListener('wheel', e => {
     e.preventDefault();
-  }, {passive: false});
-  wrapper.addEventListener('touchend', () => { isDragging = false; });
-
-  // Mouse wheel zoom
-  wrapper.addEventListener('wheel', e => {
-    e.preventDefault();
-    const rect = wrapper.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const oldZ = zoomLevel;
-    if (e.deltaY < 0) {
-      zoomLevel = Math.min(zoomLevel + 0.3, ZOOM_MAX);
-    } else {
-      zoomLevel = Math.max(zoomLevel - 0.3, ZOOM_MIN);
-    }
-    const scale = zoomLevel / oldZ;
-    panX = mx - scale * (mx - panX);
-    panY = my - scale * (my - panY);
-    clampPan();
-    applyTransform();
-  }, {passive: false});
-}
-
-// ===== Race animation =====
-function playAnimation() {
-  zoomReset();
-  setWeek(1);
-
-  setTimeout(() => {
-    const overlay = document.getElementById('animOverlay');
-    overlay.classList.add('active');
-    for (let i = 0; i < 30; i++) {
-      const line = document.createElement('div');
-      line.className = 'warp-line';
-      line.style.left = Math.random() * 100 + '%';
-      line.style.height = (Math.random() * 200 + 100) + 'px';
-      line.style.animationDelay = Math.random() * 0.5 + 's';
-      overlay.appendChild(line);
-    }
-
-    setTimeout(() => {
-      setWeek(2);
-      setTimeout(() => {
-        overlay.classList.remove('active');
-        overlay.innerHTML = '';
-      }, 800);
-    }, 600);
-  }, 1500);
+    const rect = w.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top, oldZ = zoomLevel;
+    zoomLevel = e.deltaY < 0 ? Math.min(zoomLevel+.3,ZOOM_MAX) : Math.max(zoomLevel-.3,ZOOM_MIN);
+    const s = zoomLevel/oldZ; panX = mx - s*(mx-panX); panY = my - s*(my-panY);
+    clampPan(); applyZoom();
+  }, {passive:false});
 }
 
 // ===== Resize =====
 window.addEventListener('resize', () => {
-  trackPoints = generateTrackPoints(600);
-  renderTrackDots();
+  trackPoints = genTrack(600);
+  const track = document.getElementById('track');
+  track.querySelectorAll('.star-dot,.planet,.planet-label').forEach(e => e.remove());
+  renderDecorations();
   renderShips();
-  clampPan();
-  applyTransform();
-  const canvas = document.getElementById('starsCanvas');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  if (currentWeek === 2) moveShipsToWeek(2);
+  clampPan(); applyZoom();
+  const c = document.getElementById('starsCanvas');
+  c.width = window.innerWidth; c.height = window.innerHeight;
 });
 
-// ===== Start =====
 window.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
