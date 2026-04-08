@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>プライムコース 教室対抗 小テストバトル</title>
+<style>
+  :root{
+    --bg1:#0b1026; --bg2:#1a1147; --accent:#ffd54a; --accent2:#ff6ec7;
+    --cyan:#4fd1ff; --text:#fff; --card:rgba(255,255,255,.08);
+    --border:rgba(255,255,255,.2);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;font-family:"Hiragino Sans","Yu Gothic UI",sans-serif;color:var(--text)}
+  body{
+    background:radial-gradient(ellipse at top,#2a1a6b 0%,var(--bg1) 50%,#000 100%);
+    position:relative;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%,#fff,transparent),
+      radial-gradient(1px 1px at 80% 20%,#fff,transparent),
+      radial-gradient(1.5px 1.5px at 50% 70%,#fff,transparent),
+      radial-gradient(1px 1px at 30% 80%,#fff,transparent),
+      radial-gradient(2px 2px at 70% 50%,#fff,transparent),
+      radial-gradient(1px 1px at 10% 60%,#fff,transparent),
+      radial-gradient(1.5px 1.5px at 90% 85%,#fff,transparent);
+    background-size:600px 600px;
+    opacity:.6;animation:twinkle 6s infinite alternate;pointer-events:none;
+  }
+  @keyframes twinkle{from{opacity:.4}to{opacity:.9}}
+  .screen{position:fixed;inset:0;display:none;flex-direction:column;padding:2vh 3vw}
+  .screen.active{display:flex}
+
+  /* ===== Title ===== */
+  #title{justify-content:center;align-items:center;text-align:center}
+  .logo{
+    font-size:clamp(28px,5.5vw,68px);font-weight:900;letter-spacing:.05em;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--cyan),var(--accent));
+    background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:flow 6s linear infinite;
+    text-shadow:0 0 30px rgba(255,213,74,.3);
+    margin-bottom:1vh;
+  }
+  .logo small{display:block;font-size:.45em;letter-spacing:.3em;opacity:.9;margin-bottom:.3em;color:var(--cyan);-webkit-text-fill-color:var(--cyan)}
+  @keyframes flow{to{background-position:300% 0}}
+  .sub{font-size:clamp(14px,1.6vw,20px);opacity:.85;margin:1.5vh 0 3vh}
+  .grid{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:1vh 1vw;
+    width:min(900px,90vw);
+  }
+  .cls-btn{
+    background:var(--card);border:1.5px solid var(--border);color:#fff;
+    padding:1.4vh .5vw;border-radius:12px;font-size:clamp(13px,1.4vw,18px);
+    font-weight:700;cursor:pointer;transition:all .2s;backdrop-filter:blur(8px);
+  }
+  .cls-btn:hover{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    transform:translateY(-3px) scale(1.05);
+    box-shadow:0 8px 24px rgba(255,110,199,.4);border-color:transparent;
+  }
+
+  /* ===== Match ===== */
+  #match{padding:1.5vh 2vw}
+  .header{display:flex;align-items:center;gap:1.5vw;margin-bottom:1.2vh}
+  .back{
+    background:rgba(255,255,255,.1);border:1px solid var(--border);color:#fff;
+    padding:.6vh 1.2vw;border-radius:8px;cursor:pointer;font-size:14px;
+  }
+  .back:hover{background:rgba(255,255,255,.2)}
+  .my-cls{
+    font-size:clamp(20px,2.8vw,32px);font-weight:900;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .tag{
+    background:linear-gradient(90deg,var(--cyan),#7c3aed);
+    padding:.4vh .8vw;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.1em;
+  }
+  .matches{
+    flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:.8vw;
+    min-height:0;
+  }
+  .card{
+    background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+    border:1.5px solid var(--border);border-radius:14px;
+    padding:1.2vh .5vw;display:flex;flex-direction:column;align-items:center;
+    text-align:center;backdrop-filter:blur(10px);
+    position:relative;overflow:hidden;
+    transition:all .3s;
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:-100%;width:100%;height:3px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    animation:scan 3s infinite;
+  }
+  @keyframes scan{to{left:100%}}
+  .card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 10px 30px rgba(255,213,74,.2)}
+  .card.next{
+    border-color:var(--accent);
+    background:linear-gradient(160deg,rgba(255,213,74,.25),rgba(255,110,199,.1));
+    box-shadow:0 0 30px rgba(255,213,74,.4);
+  }
+  .card.next::after{
+    content:"NEXT";position:absolute;top:6px;right:6px;
+    background:var(--accent);color:#000;font-size:9px;font-weight:900;
+    padding:2px 6px;border-radius:4px;letter-spacing:.1em;
+  }
+  .test-no{
+    font-size:clamp(11px,1vw,13px);font-weight:700;color:var(--cyan);
+    letter-spacing:.1em;margin-bottom:.4vh;
+  }
+  .test-no .num{font-size:1.8em;display:block;color:var(--accent);font-weight:900;line-height:1}
+  .vs{font-size:10px;opacity:.6;margin:.6vh 0 .3vh}
+  .opp{
+    font-size:clamp(13px,1.5vw,19px);font-weight:900;
+    margin-bottom:.6vh;line-height:1.2;
+  }
+  .dates{font-size:clamp(9px,.85vw,11px);opacity:.75;line-height:1.5;margin-top:auto}
+  .dates b{color:var(--accent);font-weight:700}
+  .dates .res{color:var(--cyan)}
+
+  @media (max-width:900px){
+    .grid{grid-template-columns:repeat(3,1fr)}
+    .matches{grid-template-columns:repeat(2,1fr);overflow-y:auto}
+    html,body{overflow:auto}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Title Screen ===== -->
+<section id="title" class="screen active">
+  <h1 class="logo">
+    <small>PRIME COURSE</small>
+    プライムコース<br>教室対抗 小テストバトル
+  </h1>
+  <p class="sub">▼ 自教室を選択してね ▼</p>
+  <div class="grid" id="classGrid"></div>
+</section>
+
+<!-- ===== Match Screen ===== -->
+<section id="match" class="screen">
+  <div class="header">
+    <button class="back" onclick="show('title')">← 戻る</button>
+    <span class="tag">MY CLASSROOM</span>
+    <span class="my-cls" id="myCls"></span>
+    <span class="tag" style="background:linear-gradient(90deg,var(--accent2),var(--accent))">対戦スケジュール</span>
+  </div>
+  <div class="matches" id="matches"></div>
+</section>
+
+<script>
+  const CLASSES = ["五位堂","京田辺","八木","奈良","学園前","木津南","桜井","王寺","生駒","登美ヶ丘","神宮","西大寺","郡山","高の原","高田"];
+  const SCHEDULE = [
+    {no:"①",jissi:"4/20〜26",  hapyo:"5/11〜17"},
+    {no:"②",jissi:"4/27〜5/3", hapyo:"5/18〜24"},
+    {no:"③",jissi:"5/11〜17",  hapyo:"5/25〜31"},
+    {no:"④",jissi:"6/8〜14",   hapyo:"6/22〜28"},
+    {no:"⑤",jissi:"6/15〜21",  hapyo:"6/29〜7/5"},
+    {no:"⑥",jissi:"6/22〜28",  hapyo:"7/6〜12"},
+    {no:"⑦",jissi:"6/29〜7/5", hapyo:"7/13〜19"},
+  ];
+
+  // Build title grid
+  const grid = document.getElementById('classGrid');
+  CLASSES.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cls-btn';b.textContent=c;
+    b.onclick=()=>selectClass(c);
+    grid.appendChild(b);
+  });
+
+  function show(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function selectClass(name){
+    document.getElementById('myCls').textContent=name;
+    const idx=CLASSES.indexOf(name);
+    const wrap=document.getElementById('matches');
+    wrap.innerHTML='';
+    // Determine "next" upcoming test (first whose 実施 hasn't fully passed). Simplified: always highlight first.
+    const today=new Date();
+    let nextIdx=-1;
+    SCHEDULE.forEach((s,i)=>{
+      if(nextIdx===-1 && !isPast(s.jissi)) nextIdx=i;
+    });
+    SCHEDULE.forEach((s,i)=>{
+      const opp=CLASSES[(idx+i+1)%CLASSES.length];
+      const card=document.createElement('div');
+      card.className='card'+(i===nextIdx?' next':'');
+      card.innerHTML=`
+        <div class="test-no">TEST<span class="num">${s.no}</span></div>
+        <div class="vs">VS</div>
+        <div class="opp">${opp}</div>
+        <div class="dates">
+          <b>実施</b> ${s.jissi}<br>
+          <span class="res">結果 ${s.hapyo}</span>
+        </div>`;
+      wrap.appendChild(card);
+    });
+    show('match');
+  }
+
+  function isPast(range){
+    // range like "6/29〜7/5" - check end date in 2026
+    const end=range.split('〜').pop();
+    let m,d;
+    if(end.includes('/')){[m,d]=end.split('/').map(Number);}
+    else{
+      // "5/3" style already handled; fallback use start month
+      const start=range.split('〜')[0];
+      const sm=Number(start.split('/')[0]);
+      m=sm;d=Number(end);
+    }
+    const endDate=new Date(2026,m-1,d);
+    return endDate < new Date();
+  }
+</script>
+</body>
+</html>
