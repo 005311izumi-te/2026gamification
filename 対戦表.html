@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教室対抗小テストバトル 対戦表 2026</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-bright: #f0f6fc;
+      --text-dim: #8b949e;
+      --accent: #58a6ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--text-bright);
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--text-bright);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Schedule table ── */
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .schedule-table th,
+    .schedule-table td {
+      padding: 9px 16px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .schedule-table thead th {
+      background: var(--surface2);
+      color: var(--text-bright);
+      font-weight: bold;
+    }
+    .schedule-table tbody tr:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* ── Week selector buttons ── */
+    .week-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .week-btn {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-family: inherit;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .week-btn:hover { border-color: #58a6ff; color: var(--text); }
+    .week-btn.active { color: var(--text-bright); }
+
+    /* ── Circular SVG ── */
+    .circle-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #battle-svg {
+      width: 100%;
+      max-width: 620px;
+      display: block;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 16px;
+      font-size: 0.82rem;
+      justify-content: center;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Classroom grid ── */
+    .classroom-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .classroom-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: border-color 0.2s;
+    }
+    .classroom-card:hover {
+      border-color: #58a6ff;
+    }
+
+    .classroom-name {
+      font-weight: bold;
+      color: var(--text-bright);
+      font-size: 1rem;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .classroom-num {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-right: 4px;
+    }
+
+    .match-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      padding: 3px 0;
+    }
+
+    .match-week-label {
+      font-weight: bold;
+      width: 54px;
+      flex-shrink: 0;
+    }
+
+    .match-vs {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+    }
+
+    .match-opponent {
+      color: var(--text);
+    }
+
+    .match-date {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="page-header">
+    <h1>教室対抗 小テストバトル 対戦表</h1>
+    <p class="subtitle">2026年度 プライムコース 全15教室 ／ テスト①〜⑦</p>
+  </div>
+
+  <!-- ①スケジュール一覧 -->
+  <div class="section">
+    <div class="section-title">テストスケジュール</div>
+    <table class="schedule-table" id="schedule-table">
+      <thead>
+        <tr>
+          <th>テスト</th>
+          <th>実施週</th>
+          <th>結果発表週</th>
+        </tr>
+      </thead>
+      <tbody id="schedule-body"></tbody>
+    </table>
+  </div>
+
+  <!-- ②円形対戦表 -->
+  <div class="section">
+    <div class="section-title">円形対戦表（俯瞰）</div>
+    <div class="circle-wrap">
+      <div class="week-buttons" id="week-buttons"></div>
+      <svg id="battle-svg" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+  <!-- ③各教室の対戦表 -->
+  <div class="section">
+    <div class="section-title">各教室の対戦表</div>
+    <div class="classroom-grid" id="classroom-grid"></div>
+  </div>
+
+</div>
+
+<script>
+  /* ─── データ ─── */
+  const classrooms = [
+    '五位堂','京田辺','八木','奈良','学園前',
+    '木津南','桜井','王寺','生駒','登美ヶ丘',
+    '神宮','西大寺','郡山','高の原','高田'
+  ];
+  const N = classrooms.length; // 15
+
+  const tests = [
+    { label: 'テスト①', week: '4/20〜26',  resultWeek: '5/11〜17'  },
+    { label: 'テスト②', week: '4/27〜5/3', resultWeek: '5/18〜24'  },
+    { label: 'テスト③', week: '5/11〜17',  resultWeek: '5/25〜31'  },
+    { label: 'テスト④', week: '6/8〜14',   resultWeek: '6/22〜28'  },
+    { label: 'テスト⑤', week: '6/15〜21',  resultWeek: '6/29〜7/5' },
+    { label: 'テスト⑥', week: '6/22〜28',  resultWeek: '7/6〜12'   },
+    { label: 'テスト⑦', week: '6/29〜7/5', resultWeek: '7/13〜19'  },
+  ];
+
+  const weekColors = [
+    '#ff6b6b', // ①
+    '#ff9f43', // ②
+    '#f9ca24', // ③
+    '#6ab04c', // ④
+    '#22a6b3', // ⑤
+    '#4b7bec', // ⑥
+    '#a55eea', // ⑦
+  ];
+
+  /* テスト k (1-indexed) における教室 i (0-indexed) の対戦相手インデックス */
+  function getOpponent(i, k) {
+    return (i + k) % N;
+  }
+
+  /* ─── スケジュール表 ─── */
+  (function renderSchedule() {
+    const tbody = document.getElementById('schedule-body');
+    tests.forEach((t, idx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:${weekColors[idx]};font-weight:bold;">${t.label}</td>
+        <td>${t.week}</td>
+        <td>${t.resultWeek}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  })();
+
+  /* ─── 週ボタン ─── */
+  let selectedWeek = 0; // 0=全テスト
+
+  function renderWeekButtons() {
+    const wrap = document.getElementById('week-buttons');
+    wrap.innerHTML = '';
+
+    const allBtn = makeBtn('全テスト', 0, '#58a6ff');
+    wrap.appendChild(allBtn);
+    tests.forEach((t, idx) => {
+      wrap.appendChild(makeBtn(t.label, idx + 1, weekColors[idx]));
+    });
+    refreshBtnState();
+  }
+
+  function makeBtn(text, weekNum, color) {
+    const btn = document.createElement('button');
+    btn.className = 'week-btn';
+    btn.textContent = text;
+    btn.dataset.week = weekNum;
+    btn.dataset.color = color;
+    btn.addEventListener('click', () => {
+      selectedWeek = weekNum;
+      refreshBtnState();
+      renderSVG();
+    });
+    return btn;
+  }
+
+  function refreshBtnState() {
+    document.querySelectorAll('.week-btn').forEach(btn => {
+      const isActive = parseInt(btn.dataset.week) === selectedWeek;
+      btn.classList.toggle('active', isActive);
+      btn.style.borderColor = isActive ? btn.dataset.color : '';
+      btn.style.color = isActive ? btn.dataset.color : '';
+    });
+  }
+
+  /* ─── SVG 円形対戦表 ─── */
+  const CX = 320, CY = 320;
+  const RING_R = 256;   // 教室ノードの配置半径
+  const NODE_R = 30;    // ノード円の半径
+
+  function nodePos(i) {
+    const deg = -90 + i * (360 / N);
+    const rad = deg * Math.PI / 180;
+    return { x: CX + RING_R * Math.cos(rad), y: CY + RING_R * Math.sin(rad) };
+  }
+
+  function svgNS(tag) {
+    return document.createElementNS('http://www.w3.org/2000/svg', tag);
+  }
+
+  function renderSVG() {
+    const svg = document.getElementById('battle-svg');
+    svg.innerHTML = '';
+
+    const weeksToShow = selectedWeek === 0
+      ? tests.map((_, i) => i + 1)
+      : [selectedWeek];
+    const isSingle = selectedWeek !== 0;
+
+    /* ── arrowhead defs ── */
+    const defs = svgNS('defs');
+    weeksToShow.forEach(k => {
+      const color = weekColors[k - 1];
+      const marker = svgNS('marker');
+      marker.setAttribute('id', `arw${k}`);
+      marker.setAttribute('viewBox', '0 0 8 8');
+      marker.setAttribute('refX', '7');
+      marker.setAttribute('refY', '4');
+      marker.setAttribute('markerWidth', '5');
+      marker.setAttribute('markerHeight', '5');
+      marker.setAttribute('orient', 'auto-start-reverse');
+      const p = svgNS('path');
+      p.setAttribute('d', 'M0,0 L8,4 L0,8 Z');
+      p.setAttribute('fill', color);
+      marker.appendChild(p);
+      defs.appendChild(marker);
+    });
+    svg.appendChild(defs);
+
+    /* ── 接続線（ノードより下に描画） ── */
+    weeksToShow.forEach(k => {
+      const color = weekColors[k - 1];
+      const opacity = isSingle ? '0.85' : '0.45';
+      const strokeW = isSingle ? '2.2' : '1.4';
+
+      for (let i = 0; i < N; i++) {
+        const j = getOpponent(i, k);
+        const p1 = nodePos(i);
+        const p2 = nodePos(j);
+
+        /* コントロールポイント：中点を中心寄りにオフセット */
+        const mx = (p1.x + p2.x) / 2;
+        const my = (p1.y + p2.y) / 2;
+        const cpx = mx + (CX - mx) * 0.35;
+        const cpy = my + (CY - my) * 0.35;
+
+        /* 始点・終点をノード円の端に合わせる（ベジェ接線方向で近似） */
+        const startAngle = Math.atan2(cpy - p1.y, cpx - p1.x);
+        const endAngle   = Math.atan2(p2.y - cpy, p2.x - cpx);
+        const sx = p1.x + NODE_R * Math.cos(startAngle);
+        const sy = p1.y + NODE_R * Math.sin(startAngle);
+        const ex = p2.x - (NODE_R + 4) * Math.cos(endAngle);
+        const ey = p2.y - (NODE_R + 4) * Math.sin(endAngle);
+
+        const path = svgNS('path');
+        path.setAttribute('d', `M${sx},${sy} Q${cpx},${cpy} ${ex},${ey}`);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', strokeW);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('opacity', opacity);
+        path.setAttribute('marker-end', `url(#arw${k})`);
+        svg.appendChild(path);
+      }
+    });
+
+    /* ── ノード（線より上に描画） ── */
+    for (let i = 0; i < N; i++) {
+      const pos = nodePos(i);
+
+      // 外周ライン
+      const ring = svgNS('circle');
+      ring.setAttribute('cx', pos.x);
+      ring.setAttribute('cy', pos.y);
+      ring.setAttribute('r', NODE_R);
+      ring.setAttribute('fill', '#161b22');
+      ring.setAttribute('stroke', '#444d56');
+      ring.setAttribute('stroke-width', '1.5');
+      svg.appendChild(ring);
+
+      // 番号（小さく上寄り）
+      const numTxt = svgNS('text');
+      numTxt.setAttribute('x', pos.x);
+      numTxt.setAttribute('y', pos.y - 8);
+      numTxt.setAttribute('text-anchor', 'middle');
+      numTxt.setAttribute('dominant-baseline', 'middle');
+      numTxt.setAttribute('fill', '#6e7681');
+      numTxt.setAttribute('font-size', '9');
+      numTxt.textContent = i + 1;
+      svg.appendChild(numTxt);
+
+      // 教室名
+      const nameTxt = svgNS('text');
+      nameTxt.setAttribute('x', pos.x);
+      nameTxt.setAttribute('y', pos.y + 7);
+      nameTxt.setAttribute('text-anchor', 'middle');
+      nameTxt.setAttribute('dominant-baseline', 'middle');
+      nameTxt.setAttribute('fill', '#e6edf3');
+      nameTxt.setAttribute('font-size', '10');
+      nameTxt.setAttribute('font-weight', 'bold');
+      nameTxt.textContent = classrooms[i];
+      svg.appendChild(nameTxt);
+    }
+
+    /* ── 中央ラベル ── */
+    const centerTxt = svgNS('text');
+    centerTxt.setAttribute('x', CX);
+    centerTxt.setAttribute('y', CY);
+    centerTxt.setAttribute('text-anchor', 'middle');
+    centerTxt.setAttribute('dominant-baseline', 'middle');
+    centerTxt.setAttribute('fill', '#444d56');
+    centerTxt.setAttribute('font-size', '13');
+    centerTxt.textContent = isSingle ? tests[selectedWeek - 1].label : '全テスト';
+    svg.appendChild(centerTxt);
+
+    const subTxt = svgNS('text');
+    subTxt.setAttribute('x', CX);
+    subTxt.setAttribute('y', CY + 18);
+    subTxt.setAttribute('text-anchor', 'middle');
+    subTxt.setAttribute('dominant-baseline', 'middle');
+    subTxt.setAttribute('fill', '#30363d');
+    subTxt.setAttribute('font-size', '10');
+    subTxt.textContent = isSingle ? tests[selectedWeek - 1].week : '15教室 × 7テスト';
+    svg.appendChild(subTxt);
+  }
+
+  /* ─── 凡例 ─── */
+  (function renderLegend() {
+    const wrap = document.getElementById('legend');
+    tests.forEach((t, idx) => {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <div class="legend-dot" style="background:${weekColors[idx]}"></div>
+        <span>${t.label}（${t.week}）</span>
+      `;
+      wrap.appendChild(item);
+    });
+  })();
+
+  /* ─── 各教室の対戦表 ─── */
+  (function renderClassroomGrid() {
+    const grid = document.getElementById('classroom-grid');
+    classrooms.forEach((name, i) => {
+      const card = document.createElement('div');
+      card.className = 'classroom-card';
+
+      let rows = '';
+      tests.forEach((t, k) => {
+        const oppIdx = getOpponent(i, k + 1);
+        rows += `
+          <div class="match-row">
+            <span class="match-week-label" style="color:${weekColors[k]}">${t.label}</span>
+            <span class="match-vs">vs</span>
+            <span class="match-opponent">${classrooms[oppIdx]}</span>
+            <span class="match-date">${t.week}</span>
+          </div>
+        `;
+      });
+
+      card.innerHTML = `
+        <div class="classroom-name">
+          <span class="classroom-num">${i + 1}.</span>${name}
+        </div>
+        ${rows}
+      `;
+      grid.appendChild(card);
+    });
+  })();
+
+  /* ─── 初期描画 ─── */
+  renderWeekButtons();
+  renderSVG();
+</script>
+</body>
+</html>
