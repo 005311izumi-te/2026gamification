@@ -78,52 +78,58 @@
     padding:.4vh .8vw;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.1em;
   }
   .matches{
-    flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:.8vw;
-    min-height:0;
+    flex:1;display:flex;flex-direction:column;gap:.7vh;
+    min-height:0;width:min(900px,95%);margin:0 auto;
   }
   .card{
-    background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+    background:linear-gradient(100deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
     border:1.5px solid var(--border);border-radius:14px;
-    padding:1.2vh .5vw;display:flex;flex-direction:column;align-items:center;
-    text-align:center;backdrop-filter:blur(10px);
+    padding:.8vh 2vw;display:grid;
+    grid-template-columns:auto 1fr auto auto;
+    align-items:center;gap:2.5vw;
+    backdrop-filter:blur(10px);
     position:relative;overflow:hidden;
-    transition:all .3s;
+    transition:all .3s;flex:1;min-height:0;
   }
   .card::before{
-    content:"";position:absolute;top:0;left:-100%;width:100%;height:3px;
+    content:"";position:absolute;top:0;left:-100%;width:100%;height:2px;
     background:linear-gradient(90deg,transparent,var(--accent),transparent);
     animation:scan 3s infinite;
   }
   @keyframes scan{to{left:100%}}
-  .card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 10px 30px rgba(255,213,74,.2)}
+  .card:hover{transform:translateX(6px);border-color:var(--accent);box-shadow:0 6px 24px rgba(255,213,74,.2)}
   .card.next{
-    border-color:var(--accent);
-    background:linear-gradient(160deg,rgba(255,213,74,.25),rgba(255,110,199,.1));
+    border-color:var(--accent);border-width:2px;
+    background:linear-gradient(100deg,rgba(255,213,74,.25),rgba(255,110,199,.1));
     box-shadow:0 0 30px rgba(255,213,74,.4);
   }
   .card.next::after{
-    content:"NEXT";position:absolute;top:6px;right:6px;
-    background:var(--accent);color:#000;font-size:9px;font-weight:900;
-    padding:2px 6px;border-radius:4px;letter-spacing:.1em;
+    content:"NEXT";position:absolute;top:8px;right:10px;
+    background:var(--accent);color:#000;font-size:10px;font-weight:900;
+    padding:2px 8px;border-radius:4px;letter-spacing:.1em;
   }
   .test-no{
     font-size:clamp(11px,1vw,13px);font-weight:700;color:var(--cyan);
-    letter-spacing:.1em;margin-bottom:.4vh;
+    letter-spacing:.1em;text-align:center;line-height:1;
   }
-  .test-no .num{font-size:1.8em;display:block;color:var(--accent);font-weight:900;line-height:1}
-  .vs{font-size:10px;opacity:.6;margin:.6vh 0 .3vh}
+  .test-no .num{font-size:2.6em;display:block;color:var(--accent);font-weight:900;line-height:1}
+  .opp-wrap{display:flex;align-items:center;gap:1.5vw}
+  .vs{font-size:clamp(12px,1.3vw,16px);opacity:.6;font-weight:700;letter-spacing:.1em}
   .opp{
-    font-size:clamp(13px,1.5vw,19px);font-weight:900;
-    margin-bottom:.6vh;line-height:1.2;
+    font-size:clamp(22px,3.2vw,40px);font-weight:900;line-height:1.1;
+    background:linear-gradient(90deg,#fff,#ffd54a);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  .dates{font-size:clamp(9px,.85vw,11px);opacity:.75;line-height:1.5;margin-top:auto}
-  .dates b{color:var(--accent);font-weight:700}
-  .dates .res{color:var(--cyan)}
+  .dates{font-size:clamp(16px,1.9vw,24px);line-height:1.2;text-align:right;font-weight:800;white-space:nowrap}
+  .dates .lbl{font-size:.65em;opacity:.7;letter-spacing:.1em;font-weight:700;margin-right:.3em}
+  .dates b{color:var(--accent);font-weight:900}
+  .dates .res{color:var(--cyan);font-weight:900}
 
   @media (max-width:900px){
     .grid{grid-template-columns:repeat(3,1fr)}
-    .matches{grid-template-columns:repeat(2,1fr);overflow-y:auto}
     html,body{overflow:auto}
+    .card{grid-template-columns:auto 1fr;gap:4vw}
+    .dates{grid-column:1/-1;text-align:left}
   }
 </style>
 </head>
@@ -193,12 +199,9 @@
       card.className='card'+(i===nextIdx?' next':'');
       card.innerHTML=`
         <div class="test-no">TEST<span class="num">${s.no}</span></div>
-        <div class="vs">VS</div>
-        <div class="opp">${opp}</div>
-        <div class="dates">
-          <b>実施</b> ${s.jissi}<br>
-          <span class="res">結果 ${s.hapyo}</span>
-        </div>`;
+        <div class="opp-wrap"><span class="vs">VS</span><span class="opp">${opp}</span></div>
+        <div class="dates"><span class="lbl">実施</span><b>${s.jissi}</b></div>
+        <div class="dates"><span class="lbl">結果</span><span class="res">${s.hapyo}</span></div>`;
       wrap.appendChild(card);
     });
     show('match');
