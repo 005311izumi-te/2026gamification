@@ -5,124 +5,186 @@
 <title>プライムコース 教室対抗 小テストバトル</title>
 <style>
   :root{
-    --bg1:#0b1026; --bg2:#1a1147; --accent:#ffd54a; --accent2:#ff6ec7;
-    --cyan:#4fd1ff; --text:#fff; --card:rgba(255,255,255,.08);
-    --border:rgba(255,255,255,.2);
+    --cyan:#20B0E4; --navy:#0C57A3; --orange:#F49D20;
+    --ink:#0C57A3; --paper:#ffffff;
+    --shadow:6px 6px 0 var(--navy);
+    --shadow-sm:4px 4px 0 var(--navy);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;font-family:"Hiragino Sans","Yu Gothic UI",sans-serif;color:var(--text)}
+  html,body{height:100%;overflow:hidden;font-family:"Hiragino Sans","Yu Gothic UI",sans-serif;color:var(--ink)}
   body{
-    background:radial-gradient(ellipse at top,#2a1a6b 0%,var(--bg1) 50%,#000 100%);
+    background:var(--paper);
     position:relative;
+    background-image:
+      radial-gradient(circle,var(--cyan) 2px,transparent 2.5px),
+      radial-gradient(circle,var(--orange) 1.6px,transparent 2px);
+    background-size:44px 44px, 44px 44px;
+    background-position:0 0, 22px 22px;
   }
   body::before{
-    content:"";position:fixed;inset:0;
-    background-image:
-      radial-gradient(2px 2px at 20% 30%,#fff,transparent),
-      radial-gradient(1px 1px at 80% 20%,#fff,transparent),
-      radial-gradient(1.5px 1.5px at 50% 70%,#fff,transparent),
-      radial-gradient(1px 1px at 30% 80%,#fff,transparent),
-      radial-gradient(2px 2px at 70% 50%,#fff,transparent),
-      radial-gradient(1px 1px at 10% 60%,#fff,transparent),
-      radial-gradient(1.5px 1.5px at 90% 85%,#fff,transparent);
-    background-size:600px 600px;
-    opacity:.6;animation:twinkle 6s infinite alternate;pointer-events:none;
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background:
+      linear-gradient(135deg,rgba(32,176,228,.12) 0 12px,transparent 12px 26px) top left/60px 60px,
+      radial-gradient(ellipse at top right,rgba(244,157,32,.18),transparent 55%),
+      radial-gradient(ellipse at bottom left,rgba(12,87,163,.12),transparent 55%);
   }
-  @keyframes twinkle{from{opacity:.4}to{opacity:.9}}
-  .screen{position:fixed;inset:0;display:none;flex-direction:column;padding:2vh 3vw}
+  .screen{position:fixed;inset:0;display:none;flex-direction:column;padding:2vh 3vw;z-index:1}
   .screen.active{display:flex}
 
   /* ===== Title ===== */
   #title{justify-content:center;align-items:center;text-align:center}
   .logo{
     font-size:clamp(28px,5.5vw,68px);font-weight:900;letter-spacing:.05em;
-    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--cyan),var(--accent));
-    background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
-    animation:flow 6s linear infinite;
-    text-shadow:0 0 30px rgba(255,213,74,.3);
-    margin-bottom:1vh;
+    color:var(--navy);line-height:1.15;
+    text-shadow:4px 4px 0 var(--orange), 8px 8px 0 var(--cyan);
+    margin-bottom:2vh;
+    -webkit-text-stroke:1px var(--navy);
   }
-  .logo small{display:block;font-size:.45em;letter-spacing:.3em;opacity:.9;margin-bottom:.3em;color:var(--cyan);-webkit-text-fill-color:var(--cyan)}
-  @keyframes flow{to{background-position:300% 0}}
-  .sub{font-size:clamp(14px,1.6vw,20px);opacity:.85;margin:1.5vh 0 3vh}
+  .logo small{
+    display:inline-block;font-size:.35em;letter-spacing:.3em;
+    color:var(--paper);background:var(--orange);
+    padding:.3em 1em;border-radius:999px;margin-bottom:.6em;
+    text-shadow:none;-webkit-text-stroke:0;
+    box-shadow:var(--shadow-sm);border:2px solid var(--navy);
+  }
+  .sub{
+    font-size:clamp(14px,1.6vw,20px);font-weight:800;
+    color:var(--paper);background:var(--cyan);
+    display:inline-block;padding:.6em 1.4em;border-radius:999px;
+    margin:1vh 0 3vh;border:2.5px solid var(--navy);
+    box-shadow:var(--shadow-sm);
+  }
   .grid{
-    display:grid;grid-template-columns:repeat(5,1fr);gap:1vh 1vw;
+    display:grid;grid-template-columns:repeat(5,1fr);gap:1.4vh 1vw;
     width:min(900px,90vw);
   }
   .cls-btn{
-    background:var(--card);border:1.5px solid var(--border);color:#fff;
-    padding:1.4vh .5vw;border-radius:12px;font-size:clamp(13px,1.4vw,18px);
-    font-weight:700;cursor:pointer;transition:all .2s;backdrop-filter:blur(8px);
+    background:var(--paper);border:2.5px solid var(--navy);color:var(--navy);
+    padding:1.4vh .5vw;border-radius:14px;font-size:clamp(13px,1.4vw,18px);
+    font-weight:900;cursor:pointer;transition:all .15s;
+    box-shadow:var(--shadow-sm);
+    position:relative;overflow:hidden;
+  }
+  .cls-btn::before{
+    content:"";position:absolute;inset:0;opacity:0;transition:opacity .2s;
+    background-image:radial-gradient(circle,rgba(255,255,255,.6) 1.5px,transparent 2px);
+    background-size:12px 12px;
   }
   .cls-btn:hover{
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    transform:translateY(-3px) scale(1.05);
-    box-shadow:0 8px 24px rgba(255,110,199,.4);border-color:transparent;
+    background:var(--orange);color:var(--paper);
+    transform:translate(-2px,-2px);
+    box-shadow:6px 6px 0 var(--navy);
   }
+  .cls-btn:hover::before{opacity:1}
+  .cls-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--navy)}
 
   /* ===== Match ===== */
-  #match{padding:1.5vh 2vw}
-  .header{display:flex;align-items:center;gap:1.5vw;margin-bottom:1.2vh}
-  .back{
-    background:rgba(255,255,255,.1);border:1px solid var(--border);color:#fff;
-    padding:.6vh 1.2vw;border-radius:8px;cursor:pointer;font-size:14px;
+  #match{padding:2vh 3vw}
+  .header{
+    display:flex;align-items:center;gap:1.2vw;margin-bottom:1.5vh;
+    flex-wrap:wrap;
   }
-  .back:hover{background:rgba(255,255,255,.2)}
+  .back{
+    background:var(--paper);border:2.5px solid var(--navy);color:var(--navy);
+    padding:.8vh 1.2vw;border-radius:10px;cursor:pointer;font-size:14px;
+    font-weight:900;box-shadow:var(--shadow-sm);transition:all .15s;
+  }
+  .back:hover{background:var(--cyan);color:var(--paper);transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--navy)}
   .my-cls{
-    font-size:clamp(20px,2.8vw,32px);font-weight:900;
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-size:clamp(20px,2.8vw,34px);font-weight:900;
+    color:var(--navy);
+    text-shadow:3px 3px 0 var(--orange);
+    padding:0 .4em;
   }
   .tag{
-    background:linear-gradient(90deg,var(--cyan),#7c3aed);
-    padding:.4vh .8vw;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.1em;
+    background:var(--navy);color:var(--paper);
+    padding:.5vh 1vw;border-radius:999px;font-size:12px;font-weight:900;letter-spacing:.15em;
+    border:2px solid var(--navy);box-shadow:3px 3px 0 var(--orange);
   }
+  .tag.orange{background:var(--orange);box-shadow:3px 3px 0 var(--navy)}
   .matches{
-    flex:1;display:flex;flex-direction:column;gap:.7vh;
-    min-height:0;width:min(900px,95%);margin:0 auto;
+    flex:1;display:flex;flex-direction:column;gap:1vh;
+    min-height:0;width:min(960px,98%);margin:0 auto;
   }
   .card{
-    background:linear-gradient(100deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
-    border:1.5px solid var(--border);border-radius:14px;
+    background:var(--paper);
+    border:3px solid var(--navy);border-radius:18px;
     padding:.8vh 2vw;display:grid;
     grid-template-columns:auto 1fr auto auto;
     align-items:center;gap:2.5vw;
-    backdrop-filter:blur(10px);
     position:relative;overflow:hidden;
-    transition:all .3s;flex:1;min-height:0;
+    transition:all .2s;flex:1;min-height:0;
+    box-shadow:var(--shadow);
   }
   .card::before{
-    content:"";position:absolute;top:0;left:-100%;width:100%;height:2px;
-    background:linear-gradient(90deg,transparent,var(--accent),transparent);
-    animation:scan 3s infinite;
+    /* stripe accent on left */
+    content:"";position:absolute;left:0;top:0;bottom:0;width:14px;
+    background:repeating-linear-gradient(
+      45deg,
+      var(--cyan) 0 8px,
+      var(--paper) 8px 16px
+    );
+    border-right:2px solid var(--navy);
   }
-  @keyframes scan{to{left:100%}}
-  .card:hover{transform:translateX(6px);border-color:var(--accent);box-shadow:0 6px 24px rgba(255,213,74,.2)}
+  .card::after{
+    /* polka dot bg */
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.08;
+    background-image:radial-gradient(circle,var(--navy) 1.5px,transparent 2px);
+    background-size:18px 18px;
+  }
+  .card:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--navy)}
   .card.next{
-    border-color:var(--accent);border-width:2px;
-    background:linear-gradient(100deg,rgba(255,213,74,.25),rgba(255,110,199,.1));
-    box-shadow:0 0 30px rgba(255,213,74,.4);
+    background:var(--orange);
+    border-color:var(--navy);
+  }
+  .card.next::before{
+    background:repeating-linear-gradient(
+      45deg,
+      var(--navy) 0 8px,
+      var(--orange) 8px 16px
+    );
   }
   .card.next::after{
-    content:"NEXT";position:absolute;top:8px;right:10px;
-    background:var(--accent);color:#000;font-size:10px;font-weight:900;
-    padding:2px 8px;border-radius:4px;letter-spacing:.1em;
+    opacity:.18;
+    background-image:radial-gradient(circle,var(--paper) 2px,transparent 2.5px);
+    background-size:20px 20px;
+  }
+  .card.next .test-no,
+  .card.next .test-no .num,
+  .card.next .opp,
+  .card.next .vs,
+  .card.next .dates,
+  .card.next .dates .lbl,
+  .card.next .dates b,
+  .card.next .dates .res{color:var(--paper)}
+  .card.next .badge{
+    position:absolute;top:6px;right:10px;
+    background:var(--paper);color:var(--orange);font-size:10px;font-weight:900;
+    padding:3px 10px;border-radius:6px;letter-spacing:.15em;
+    border:2px solid var(--navy);box-shadow:2px 2px 0 var(--navy);
   }
   .test-no{
-    font-size:clamp(11px,1vw,13px);font-weight:700;color:var(--cyan);
-    letter-spacing:.1em;text-align:center;line-height:1;
+    font-size:clamp(11px,1vw,13px);font-weight:900;color:var(--cyan);
+    letter-spacing:.15em;text-align:center;line-height:1;
+    padding-left:1vw;position:relative;z-index:1;
   }
-  .test-no .num{font-size:2.6em;display:block;color:var(--accent);font-weight:900;line-height:1}
-  .opp-wrap{display:flex;align-items:center;gap:1.5vw}
-  .vs{font-size:clamp(12px,1.3vw,16px);opacity:.6;font-weight:700;letter-spacing:.1em}
+  .test-no .num{font-size:2.8em;display:block;color:var(--orange);font-weight:900;line-height:1;
+    text-shadow:2px 2px 0 var(--navy);}
+  .opp-wrap{display:flex;align-items:center;gap:1.5vw;position:relative;z-index:1}
+  .vs{
+    font-size:clamp(12px,1.3vw,16px);font-weight:900;letter-spacing:.15em;
+    color:var(--paper);background:var(--cyan);
+    padding:.3em .7em;border-radius:6px;border:2px solid var(--navy);
+  }
   .opp{
-    font-size:clamp(22px,3.2vw,40px);font-weight:900;line-height:1.1;
-    background:linear-gradient(90deg,#fff,#ffd54a);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-size:clamp(22px,3.4vw,42px);font-weight:900;line-height:1.1;
+    color:var(--navy);
+    text-shadow:3px 3px 0 var(--orange);
   }
-  .dates{font-size:clamp(16px,1.9vw,24px);line-height:1.2;text-align:right;font-weight:800;white-space:nowrap}
-  .dates .lbl{font-size:.65em;opacity:.7;letter-spacing:.1em;font-weight:700;margin-right:.3em}
-  .dates b{color:var(--accent);font-weight:900}
+  .dates{font-size:clamp(16px,2vw,26px);line-height:1.2;text-align:right;font-weight:900;white-space:nowrap;position:relative;z-index:1}
+  .dates .lbl{font-size:.6em;letter-spacing:.15em;font-weight:900;margin-right:.4em;
+    background:var(--navy);color:var(--paper);padding:.25em .7em;border-radius:6px;vertical-align:middle}
+  .dates b{color:var(--navy);font-weight:900}
   .dates .res{color:var(--cyan);font-weight:900}
 
   @media (max-width:900px){
@@ -151,7 +213,7 @@
     <button class="back" onclick="show('title')">← 戻る</button>
     <span class="tag">MY CLASSROOM</span>
     <span class="my-cls" id="myCls"></span>
-    <span class="tag" style="background:linear-gradient(90deg,var(--accent2),var(--accent))">対戦スケジュール</span>
+    <span class="tag orange">対戦スケジュール</span>
   </div>
   <div class="matches" id="matches"></div>
 </section>
@@ -198,6 +260,7 @@
       const card=document.createElement('div');
       card.className='card'+(i===nextIdx?' next':'');
       card.innerHTML=`
+        ${i===nextIdx?'<span class="badge">NEXT</span>':''}
         <div class="test-no">TEST<span class="num">${s.no}</span></div>
         <div class="opp-wrap"><span class="vs">VS</span><span class="opp">${opp}</span></div>
         <div class="dates"><span class="lbl">実施</span><b>${s.jissi}</b></div>
