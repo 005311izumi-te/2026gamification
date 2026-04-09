@@ -117,6 +117,34 @@
   }
   .rule-btn:hover{background:var(--navy);border-color:var(--navy);transform:translateY(-2px);box-shadow:var(--shadow-hover)}
 
+  /* ===== Grade selection ===== */
+  .grade-btn{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--cyan) 100%);
+    color:var(--paper);border:none;border-radius:20px;
+    padding:3vh 6vw;
+    font-size:clamp(30px,5vw,60px);font-weight:900;
+    cursor:pointer;transition:all .2s cubic-bezier(.2,1.3,.3,1);
+    box-shadow:0 6px 20px rgba(12,87,163,.22);
+    letter-spacing:.05em;min-width:clamp(130px,18vw,220px);
+  }
+  .grade-btn:nth-child(2){
+    background:linear-gradient(135deg,var(--cyan) 0%,var(--orange) 100%);
+  }
+  .grade-btn:hover{
+    transform:translateY(-5px) scale(1.07);
+    box-shadow:0 12px 32px rgba(12,87,163,.3);
+  }
+  .grade-back-btn{
+    background:transparent;border:2px solid var(--navy);color:var(--navy);
+    border-radius:8px;padding:.5vh 1vw;
+    font-size:clamp(12px,1.2vw,15px);font-weight:800;
+    cursor:pointer;transition:all .15s;white-space:nowrap;
+  }
+  .grade-back-btn:hover{background:var(--navy);color:var(--paper)}
+  #title.active .grade-btn{animation:popIn .55s cubic-bezier(.3,1.5,.4,1) both}
+  #title.active .grade-btn:nth-child(1){animation-delay:.45s}
+  #title.active .grade-btn:nth-child(2){animation-delay:.58s}
+
   /* ===== Match ===== */
   #match{padding:2vh 3vw}
   .header{
@@ -427,10 +455,22 @@
     <img src="https://lh3.googleusercontent.com/d/15_fvbSQQ6iuBCxEqDNZfDT5GBOdsPUxv=w1400" alt="プライムコース 教室対抗 小テストバトル" referrerpolicy="no-referrer">
   </h1>
   <div style="display:flex;align-items:center;gap:1.5vw;margin:1vh 0 2.5vh;position:relative;z-index:1">
-    <p class="sub" style="margin:0">▼ 自教室を選択してね ▼</p>
+    <p class="sub" id="titleSub" style="margin:0">▼ 学年を選んでね ▼</p>
     <button class="rule-btn" onclick="show('rules')">📋 ルール説明</button>
   </div>
-  <div class="grid" id="classGrid"></div>
+  <!-- 学年選択 -->
+  <div id="gradeArea" style="display:flex;gap:4vw;position:relative;z-index:1">
+    <button class="grade-btn" onclick="selectGrade(5)">小5</button>
+    <button class="grade-btn" onclick="selectGrade(6)">小6</button>
+  </div>
+  <!-- 教室選択（学年選択後に表示） -->
+  <div id="classArea" style="display:none;flex-direction:column;align-items:center;gap:.8vh;position:relative;z-index:1">
+    <div style="display:flex;align-items:center;gap:1.2vw;margin-bottom:.5vh">
+      <span id="gradeLabel" class="tag" style="font-size:clamp(14px,1.5vw,18px)"></span>
+      <button class="grade-back-btn" onclick="backToGrade()">← 学年変更</button>
+    </div>
+    <div class="grid" id="classGrid"></div>
+  </div>
 </section>
 
 <!-- ===== Rules Screen ===== -->
@@ -513,13 +553,18 @@
     <button class="back" onclick="show('title')">← 戻る</button>
     <span class="tag">MY CLASSROOM</span>
     <span class="my-cls" id="myCls"></span>
+    <span class="tag" id="gradeTag"></span>
     <span class="tag orange">対戦スケジュール</span>
   </div>
   <div class="matches" id="matches"></div>
 </section>
 
 <script>
-  const CLASSES = ["五位堂","京田辺","八木","奈良","学園前","木津南","桜井","王寺","生駒","登美ヶ丘","神宮","西大寺","郡山","高の原","高田"];
+  const CLASSES_BY_GRADE = {
+    5: ["五位堂","京田辺","八木","奈良","学園前","木津南","桜井","王寺","生駒","登美ヶ丘","神宮","西大寺","郡山","高の原","高田"],
+    6: ["五位堂","京田辺","八木","奈良","学園前","木津南","桜井","王寺","生駒","登美ヶ丘","神宮","西大寺","郡山","高の原","高田"],
+  };
+  let selectedGrade = null;
   const SCHEDULE = [
     {no:"①",jissi:"4/20〜26",  hapyo:"5/11〜17"},
     {no:"②",jissi:"4/27〜5/10", hapyo:"5/18〜24"},
@@ -543,14 +588,30 @@
     schedBody.appendChild(tr);
   });
 
-  // Build title grid
-  const grid = document.getElementById('classGrid');
-  CLASSES.forEach(c=>{
-    const b=document.createElement('button');
-    b.className='cls-btn';b.textContent=c;
-    b.onclick=()=>selectClass(c);
-    grid.appendChild(b);
-  });
+  function selectGrade(grade){
+    selectedGrade = grade;
+    document.getElementById('titleSub').textContent = '▼ 自教室を選択してね ▼';
+    document.getElementById('gradeLabel').textContent = `小${grade}`;
+    document.getElementById('gradeArea').style.display = 'none';
+    const classArea = document.getElementById('classArea');
+    classArea.style.display = 'flex';
+    // Build classroom buttons for selected grade
+    const grid = document.getElementById('classGrid');
+    grid.innerHTML = '';
+    CLASSES_BY_GRADE[grade].forEach(c=>{
+      const b = document.createElement('button');
+      b.className = 'cls-btn'; b.textContent = c;
+      b.onclick = ()=>selectClass(c);
+      grid.appendChild(b);
+    });
+  }
+
+  function backToGrade(){
+    selectedGrade = null;
+    document.getElementById('titleSub').textContent = '▼ 学年を選んでね ▼';
+    document.getElementById('classArea').style.display = 'none';
+    document.getElementById('gradeArea').style.display = 'flex';
+  }
 
   function show(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -561,18 +622,19 @@
   }
 
   function selectClass(name){
+    const classes = CLASSES_BY_GRADE[selectedGrade];
     document.getElementById('myCls').textContent=name;
-    const idx=CLASSES.indexOf(name);
+    document.getElementById('gradeTag').textContent=`小${selectedGrade}`;
+    const idx=classes.indexOf(name);
     const wrap=document.getElementById('matches');
     wrap.innerHTML='';
-    // Determine "next" upcoming test (first whose 実施 hasn't fully passed). Simplified: always highlight first.
     const today=new Date();
     let nextIdx=-1;
     SCHEDULE.forEach((s,i)=>{
       if(nextIdx===-1 && !isPast(s.jissi)) nextIdx=i;
     });
     SCHEDULE.forEach((s,i)=>{
-      const opp=CLASSES[(idx+i+1)%CLASSES.length];
+      const opp=classes[(idx+i+1)%classes.length];
       const card=document.createElement('div');
       card.className='card'+(i===nextIdx?' next':'');
       card.innerHTML=`
