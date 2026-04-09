@@ -16,7 +16,7 @@
     background:var(--paper);
     position:relative;
   }
-  body::before{
+  body:has(#match.active)::before{
     content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
     background:
       radial-gradient(ellipse at top right,rgba(244,157,32,.08),transparent 55%),
@@ -26,26 +26,76 @@
   .screen.active{display:flex}
 
   /* ===== Title ===== */
-  #title{justify-content:center;align-items:center;text-align:center}
-  .logo{
-    font-size:clamp(28px,5.5vw,68px);font-weight:900;letter-spacing:.05em;
-    color:var(--navy);line-height:1.2;
-    margin-bottom:2vh;
+  #title{justify-content:center;align-items:center;text-align:center;overflow:hidden}
+
+  /* 四隅の三角アクセント */
+  #title::before{
+    content:"";position:absolute;
+    top:0;left:0;
+    width:0;height:0;
+    border-style:solid;
+    border-width:90px 90px 0 0;
+    border-color:var(--cyan) transparent transparent transparent;
+    opacity:.25;pointer-events:none;
   }
-  .logo small{
-    display:inline-block;font-size:.32em;letter-spacing:.3em;
-    color:var(--paper);background:var(--orange);
-    padding:.35em 1.2em;border-radius:999px;margin-bottom:.8em;
+  #title::after{
+    content:"";position:absolute;
+    bottom:0;right:0;
+    width:0;height:0;
+    border-style:solid;
+    border-width:0 0 90px 90px;
+    border-color:transparent transparent var(--orange) transparent;
+    opacity:.3;pointer-events:none;
   }
-  .logo .accent{color:var(--orange)}
+  /* 装飾ドット群 */
+  .deco{position:absolute;pointer-events:none;z-index:0}
+  .deco-tl{top:12px;left:16px;display:flex;flex-direction:column;gap:7px}
+  .deco-tr{top:12px;right:16px;display:flex;flex-direction:column;gap:7px;align-items:flex-end}
+  .deco-bl{bottom:14px;left:20px}
+  .deco-br{bottom:14px;right:20px}
+  .deco-dots{display:flex;gap:7px}
+  .deco-dot{
+    width:9px;height:9px;border-radius:50%;display:inline-block;
+    opacity:.55;
+  }
+  .deco-dot.c{background:var(--cyan)}
+  .deco-dot.o{background:var(--orange)}
+  .deco-dot.n{background:var(--navy)}
+  .deco-line{
+    height:3px;border-radius:2px;opacity:.35;
+  }
+  .deco-line.c{background:var(--cyan)}
+  .deco-line.o{background:var(--orange)}
+  /* 左右のバー */
+  .deco-vbar{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:5px;border-radius:3px;opacity:.18;
+  }
+  .deco-vbar.left{left:14px;background:linear-gradient(180deg,var(--cyan),var(--orange));height:40vh}
+  .deco-vbar.right{right:14px;background:linear-gradient(180deg,var(--orange),var(--cyan));height:40vh}
+  /* 星マーク */
+  .deco-star{
+    font-size:clamp(16px,2vw,24px);opacity:.3;
+    color:var(--orange);line-height:1;
+    display:inline-block;
+  }
+  .deco-star.c{color:var(--cyan)}
+
+  .logo{margin-bottom:2vh;line-height:0;position:relative;z-index:1}
+  .logo img{
+    width:min(720px,85vw);max-height:50vh;height:auto;object-fit:contain;
+    display:block;
+  }
   .sub{
     font-size:clamp(14px,1.6vw,18px);font-weight:700;
     color:var(--navy);
     margin:1vh 0 3vh;
+    position:relative;z-index:1;
   }
   .grid{
     display:grid;grid-template-columns:repeat(5,1fr);gap:1.2vh 1vw;
     width:min(900px,90vw);
+    position:relative;z-index:1;
   }
   .cls-btn{
     background:var(--paper);border:2px solid var(--cyan);color:var(--navy);
@@ -59,6 +109,13 @@
     transform:translateY(-2px);
     box-shadow:var(--shadow-hover);
   }
+  .rule-btn{
+    background:var(--orange);color:var(--paper);
+    border:2px solid var(--orange);border-radius:12px;
+    padding:1vh 1.4vw;font-size:clamp(13px,1.3vw,17px);font-weight:900;
+    cursor:pointer;transition:all .18s;box-shadow:var(--shadow);white-space:nowrap;
+  }
+  .rule-btn:hover{background:var(--navy);border-color:var(--navy);transform:translateY(-2px);box-shadow:var(--shadow-hover)}
 
   /* ===== Match ===== */
   #match{padding:2vh 3vw}
@@ -129,6 +186,200 @@
     color:var(--paper);background:var(--cyan);padding:.2em .7em;border-radius:5px;vertical-align:middle}
   .dates.res-wrap .lbl{background:var(--orange)}
 
+  /* ===== Splat entrance animations ===== */
+  @keyframes splatIn{
+    0%  {opacity:0;transform:translateX(-120%) skewX(-25deg) scale(.7);filter:blur(4px)}
+    55% {opacity:1;transform:translateX(18px) skewX(8deg) scale(1.04);filter:blur(0)}
+    75% {transform:translateX(-6px) skewX(-3deg) scale(.99)}
+    100%{opacity:1;transform:translateX(0) skewX(0) scale(1);filter:blur(0)}
+  }
+  @keyframes popIn{
+    0%  {opacity:0;transform:scale(.3) rotate(-8deg)}
+    60% {opacity:1;transform:scale(1.15) rotate(3deg)}
+    100%{opacity:1;transform:scale(1) rotate(0)}
+  }
+  @keyframes slashIn{
+    0%  {opacity:0;transform:translateY(-40px) scale(.9);clip-path:inset(0 100% 0 0)}
+    50% {opacity:1;clip-path:inset(0 0 0 0)}
+    100%{opacity:1;transform:translateY(0) scale(1);clip-path:inset(0 0 0 0)}
+  }
+  @keyframes badgePop{
+    0%  {opacity:0;transform:scale(0) rotate(-180deg)}
+    70% {opacity:1;transform:scale(1.3) rotate(10deg)}
+    100%{opacity:1;transform:scale(1) rotate(0)}
+  }
+  @keyframes flashBg{
+    0%,100%{background-color:transparent}
+    50%    {background-color:rgba(244,157,32,.25)}
+  }
+  .screen.active .my-cls,
+  .screen.active .header .tag,
+  .screen.active .back{
+    animation:slashIn .5s cubic-bezier(.2,1.1,.3,1) both;
+  }
+  .screen.active .back{animation-delay:.02s}
+  .screen.active .my-cls{animation-delay:.12s}
+  .screen.active .header .tag:nth-child(2){animation-delay:.06s}
+  .screen.active .header .tag:nth-child(4){animation-delay:.2s}
+  .card{
+    animation:splatIn .55s cubic-bezier(.2,1.3,.3,1) both;
+  }
+  .card:nth-child(1){animation-delay:.05s}
+  .card:nth-child(2){animation-delay:.13s}
+  .card:nth-child(3){animation-delay:.21s}
+  .card:nth-child(4){animation-delay:.29s}
+  .card:nth-child(5){animation-delay:.37s}
+  .card:nth-child(6){animation-delay:.45s}
+  .card:nth-child(7){animation-delay:.53s}
+  .card .badge{
+    animation:badgePop .5s cubic-bezier(.3,1.6,.4,1) .75s both;
+  }
+  .card.next{
+    animation:splatIn .55s cubic-bezier(.2,1.3,.3,1) both, flashBg .6s ease-out .7s;
+  }
+
+  /* Title screen entrance */
+  #title.active .logo{animation:popIn .7s cubic-bezier(.2,1.4,.3,1) both}
+  #title.active .sub{animation:slashIn .5s cubic-bezier(.2,1.1,.3,1) .35s both}
+  #title.active .cls-btn{animation:popIn .45s cubic-bezier(.3,1.5,.4,1) both}
+  #title.active .cls-btn:nth-child(1){animation-delay:.45s}
+  #title.active .cls-btn:nth-child(2){animation-delay:.49s}
+  #title.active .cls-btn:nth-child(3){animation-delay:.53s}
+  #title.active .cls-btn:nth-child(4){animation-delay:.57s}
+  #title.active .cls-btn:nth-child(5){animation-delay:.61s}
+  #title.active .cls-btn:nth-child(6){animation-delay:.65s}
+  #title.active .cls-btn:nth-child(7){animation-delay:.69s}
+  #title.active .cls-btn:nth-child(8){animation-delay:.73s}
+  #title.active .cls-btn:nth-child(9){animation-delay:.77s}
+  #title.active .cls-btn:nth-child(10){animation-delay:.81s}
+  #title.active .cls-btn:nth-child(11){animation-delay:.85s}
+  #title.active .cls-btn:nth-child(12){animation-delay:.89s}
+  #title.active .cls-btn:nth-child(13){animation-delay:.93s}
+  #title.active .cls-btn:nth-child(14){animation-delay:.97s}
+  #title.active .cls-btn:nth-child(15){animation-delay:1.01s}
+
+  /* Ink splat decoration on match screen */
+  #match::before,#match::after{
+    content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:0;
+    filter:blur(1px);opacity:.12;
+  }
+  #match::before{
+    width:280px;height:280px;background:var(--orange);
+    top:-80px;right:-60px;
+    animation:popIn .8s cubic-bezier(.2,1.4,.3,1) both;
+  }
+  #match::after{
+    width:220px;height:220px;background:var(--cyan);
+    bottom:-70px;left:-50px;
+    animation:popIn .8s cubic-bezier(.2,1.4,.3,1) .1s both;
+  }
+  #match > *{position:relative;z-index:1}
+
+  /* ===== Rules screen ===== */
+  #rules{
+    padding:2vh 3vw;
+    overflow-y:auto;
+    background:
+      radial-gradient(ellipse at top right,rgba(32,176,228,.07),transparent 50%),
+      radial-gradient(ellipse at bottom left,rgba(244,157,32,.07),transparent 50%),
+      var(--paper);
+  }
+  .rules-header{display:flex;align-items:center;gap:1.2vw;margin-bottom:2vh;flex-shrink:0}
+  .rules-title{font-size:clamp(18px,2.2vw,26px);font-weight:900;color:var(--navy)}
+  .rules-lead{
+    font-size:clamp(14px,1.4vw,17px);font-weight:700;color:var(--navy);
+    background:linear-gradient(90deg,rgba(32,176,228,.12),rgba(244,157,32,.08));
+    border-left:5px solid var(--cyan);
+    padding:1.2vh 1.5vw;border-radius:0 10px 10px 0;
+    margin-bottom:2vh;
+  }
+  .rules-lead em{color:var(--orange);font-style:normal}
+  .rules-cols{
+    display:grid;grid-template-columns:1fr 1fr;gap:1.5vw;margin-bottom:1.5vh;
+  }
+  .rules-box{
+    background:var(--paper);border:1.5px solid #e5eef7;
+    border-radius:14px;padding:1.5vh 1.5vw;
+    box-shadow:var(--shadow);
+  }
+  .rules-box-title{
+    font-size:clamp(13px,1.2vw,16px);font-weight:900;
+    color:var(--paper);background:var(--navy);
+    display:inline-block;padding:.4em 1em;border-radius:6px;
+    margin-bottom:1.2vh;letter-spacing:.08em;
+  }
+  .rules-box-title.orange{background:var(--orange)}
+  .rules-box-title.cyan{background:var(--cyan)}
+  /* 3教科勝敗 */
+  .subjects{display:flex;flex-direction:column;gap:.7vh}
+  .subj-row{
+    display:flex;align-items:center;gap:1vw;
+    font-size:clamp(14px,1.4vw,18px);font-weight:800;
+  }
+  .subj-icon{
+    width:clamp(28px,2.5vw,38px);height:clamp(28px,2.5vw,38px);
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(13px,1.2vw,16px);font-weight:900;color:var(--paper);flex-shrink:0;
+  }
+  .subj-icon.ja{background:var(--orange)}
+  .subj-icon.en{background:var(--cyan)}
+  .subj-icon.ma{background:var(--navy)}
+  .win-rule{
+    margin-top:1.2vh;padding:1vh 1vw;
+    background:linear-gradient(90deg,rgba(244,157,32,.12),transparent);
+    border-left:4px solid var(--orange);border-radius:0 8px 8px 0;
+    font-size:clamp(13px,1.2vw,15px);font-weight:700;color:var(--navy);
+  }
+  .win-rule strong{color:var(--orange);font-size:1.15em}
+  /* スケジュール */
+  .sched-table{width:100%;border-collapse:collapse;font-size:clamp(11px,1.1vw,14px)}
+  .sched-table th{
+    background:var(--navy);color:var(--paper);padding:.5vh .8vw;
+    font-weight:800;text-align:center;
+  }
+  .sched-table th:first-child{border-radius:6px 0 0 0}
+  .sched-table th:last-child{border-radius:0 6px 0 0}
+  .sched-table td{
+    padding:.5vh .8vw;text-align:center;
+    border-bottom:1px solid #e5eef7;font-weight:700;color:var(--navy);
+  }
+  .sched-table tr.next-row td{background:rgba(244,157,32,.1);color:var(--orange)}
+  .sched-table .no{font-weight:900;color:var(--cyan)}
+  .sched-table .no.next{color:var(--orange)}
+  /* 80点ライン */
+  .point-box{
+    background:var(--navy);color:var(--paper);
+    border-radius:14px;padding:1.5vh 2vw;
+    display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5vw;
+    box-shadow:var(--shadow);margin-bottom:1.5vh;
+  }
+  .point-item{text-align:center}
+  .point-num{
+    font-size:clamp(28px,3.5vw,48px);font-weight:900;color:var(--orange);
+    line-height:1;display:block;
+  }
+  .point-label{font-size:clamp(11px,1vw,14px);opacity:.85;font-weight:700;margin-top:.3em}
+  .point-arrow{
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(20px,2.5vw,32px);color:var(--cyan);font-weight:900;
+  }
+  /* フロー */
+  .flow{display:flex;align-items:center;gap:.8vw;flex-wrap:wrap}
+  .flow-step{
+    background:var(--paper);border:2px solid var(--cyan);border-radius:10px;
+    padding:.6vh 1vw;font-size:clamp(12px,1.1vw,15px);font-weight:800;color:var(--navy);
+    white-space:nowrap;
+  }
+  .flow-arrow{color:var(--cyan);font-size:1.4em;font-weight:900}
+  /* Rules animation */
+  #rules.active .rules-lead{animation:splatIn .5s cubic-bezier(.2,1.3,.3,1) .1s both}
+  #rules.active .rules-cols{animation:splatIn .5s cubic-bezier(.2,1.3,.3,1) .2s both}
+  #rules.active .point-box{animation:splatIn .5s cubic-bezier(.2,1.3,.3,1) .3s both}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+
   @media (max-width:900px){
     .grid{grid-template-columns:repeat(3,1fr)}
     html,body{overflow:auto}
@@ -141,12 +392,119 @@
 
 <!-- ===== Title Screen ===== -->
 <section id="title" class="screen active">
+  <!-- 左上ドット装飾 -->
+  <div class="deco deco-tl">
+    <div class="deco-dots"><span class="deco-dot c"></span><span class="deco-dot c"></span><span class="deco-dot o"></span></div>
+    <div class="deco-dots"><span class="deco-dot c"></span><span class="deco-dot n"></span><span class="deco-dot c"></span></div>
+    <div class="deco-dots"><span class="deco-dot o"></span><span class="deco-dot c"></span><span class="deco-dot c"></span></div>
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
+      <div class="deco-line c" style="width:60px"></div>
+      <div class="deco-line o" style="width:40px"></div>
+      <div class="deco-line c" style="width:50px"></div>
+    </div>
+    <span class="deco-star" style="margin-top:8px">★</span>
+  </div>
+  <!-- 右上ドット装飾 -->
+  <div class="deco deco-tr">
+    <div class="deco-dots"><span class="deco-dot o"></span><span class="deco-dot c"></span><span class="deco-dot c"></span></div>
+    <div class="deco-dots"><span class="deco-dot c"></span><span class="deco-dot n"></span><span class="deco-dot o"></span></div>
+    <div class="deco-dots"><span class="deco-dot c"></span><span class="deco-dot c"></span><span class="deco-dot c"></span></div>
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px;align-items:flex-end">
+      <div class="deco-line o" style="width:50px"></div>
+      <div class="deco-line c" style="width:70px"></div>
+      <div class="deco-line o" style="width:40px"></div>
+    </div>
+    <span class="deco-star c" style="margin-top:8px">★</span>
+  </div>
+  <!-- 左右の縦バー -->
+  <div class="deco-vbar left"></div>
+  <div class="deco-vbar right"></div>
+  <!-- 左下・右下の星 -->
+  <div class="deco deco-bl"><span class="deco-star c" style="opacity:.25;font-size:clamp(20px,3vw,36px)">✦</span></div>
+  <div class="deco deco-br"><span class="deco-star" style="opacity:.25;font-size:clamp(20px,3vw,36px)">✦</span></div>
+
   <h1 class="logo">
-    <small>PRIME COURSE</small>
-    プライムコース<br>教室対抗 小テストバトル
+    <img src="https://lh3.googleusercontent.com/d/15_fvbSQQ6iuBCxEqDNZfDT5GBOdsPUxv=w1400" alt="プライムコース 教室対抗 小テストバトル" referrerpolicy="no-referrer">
   </h1>
-  <p class="sub">▼ 自教室を選択してね ▼</p>
+  <div style="display:flex;align-items:center;gap:1.5vw;margin:1vh 0 2.5vh;position:relative;z-index:1">
+    <p class="sub" style="margin:0">▼ 自教室を選択してね ▼</p>
+    <button class="rule-btn" onclick="show('rules')">📋 ルール説明</button>
+  </div>
   <div class="grid" id="classGrid"></div>
+</section>
+
+<!-- ===== Rules Screen ===== -->
+<section id="rules" class="screen">
+  <div class="rules-header">
+    <button class="back" onclick="show('title')">← 戻る</button>
+    <span class="rules-title">📋 ルール説明</span>
+  </div>
+
+  <div class="rules-lead">
+    毎週の小テストで、<em>教室 vs 教室</em> の勝負が決まる！<br>
+    自分の点数が、教室の勝利に直結する。<em>全員が主役</em>のバトルだ。
+  </div>
+
+  <div class="rules-cols">
+    <!-- 勝敗ルール -->
+    <div class="rules-box">
+      <div class="rules-box-title">⚔️ 勝敗のルール</div>
+      <div class="subjects">
+        <div class="subj-row"><span class="subj-icon ja">国</span>国語</div>
+        <div class="subj-row"><span class="subj-icon en">英</span>英語</div>
+        <div class="subj-row"><span class="subj-icon ma">算</span>算数</div>
+      </div>
+      <div class="win-rule">
+        3教科それぞれで勝敗をつけて、<br>
+        <strong>2教科以上勝った教室が、その週の勝者！</strong>
+      </div>
+      <div style="margin-top:1.2vh;font-size:clamp(12px,1.1vw,14px);color:#666;font-weight:700;line-height:1.6">
+        1教科負けても逆転できる。<br>最後まであきらめるな！
+      </div>
+    </div>
+
+    <!-- スケジュール -->
+    <div class="rules-box">
+      <div class="rules-box-title cyan">📅 テストスケジュール</div>
+      <table class="sched-table">
+        <thead><tr><th>テスト</th><th>実施週</th><th>結果発表</th></tr></thead>
+        <tbody id="schedBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 80点ライン -->
+  <div class="point-box">
+    <div class="point-item">
+      <span class="point-num">80<small style="font-size:.5em">点</small></span>
+      <div class="point-label">これが勝利ライン</div>
+    </div>
+    <div class="point-arrow">→</div>
+    <div class="point-item" style="text-align:left">
+      <div style="font-size:clamp(12px,1.2vw,16px);font-weight:800;line-height:1.7">
+        各教科、<span style="color:var(--orange);font-size:1.1em">80点以上の人の割合</span>が多い教室が勝ち。<br>
+        1人ひとりの80点が、教室の勝率を上げる。<br>
+        <span style="opacity:.8">宿題をやって準備すれば、必ず届くライン。</span>
+      </div>
+    </div>
+    <div class="point-arrow" style="justify-content:flex-end">🏆</div>
+  </div>
+
+  <!-- 勝利への流れ -->
+  <div class="rules-box" style="margin-bottom:0">
+    <div class="rules-box-title orange">🔥 勝利への道</div>
+    <div class="flow">
+      <div class="flow-step">宿題をやる</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">80点以上！</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">教室の割合UP</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">対戦相手に勝利</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="border-color:var(--orange);color:var(--orange)">🏆 勝者！</div>
+    </div>
+  </div>
 </section>
 
 <!-- ===== Match Screen ===== -->
@@ -172,6 +530,19 @@
     {no:"⑦",jissi:"6/29〜7/5", hapyo:"7/13〜19"},
   ];
 
+  // Build schedule table in rules screen
+  const schedBody = document.getElementById('schedBody');
+  const today = new Date();
+  let nextRulesIdx = -1;
+  SCHEDULE.forEach((s,i)=>{ if(nextRulesIdx===-1 && !isPast(s.jissi)) nextRulesIdx=i; });
+  SCHEDULE.forEach((s,i)=>{
+    const isNext = i===nextRulesIdx;
+    const tr = document.createElement('tr');
+    if(isNext) tr.className='next-row';
+    tr.innerHTML=`<td class="no${isNext?' next':''}">テスト${s.no}${isNext?' ◀':''}  </td><td>${s.jissi}</td><td>${s.hapyo}</td>`;
+    schedBody.appendChild(tr);
+  });
+
   // Build title grid
   const grid = document.getElementById('classGrid');
   CLASSES.forEach(c=>{
@@ -183,7 +554,10 @@
 
   function show(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    const el=document.getElementById(id);
+    // force reflow to restart CSS animations
+    void el.offsetWidth;
+    el.classList.add('active');
   }
 
   function selectClass(name){
