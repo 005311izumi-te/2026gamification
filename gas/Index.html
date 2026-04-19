@@ -570,9 +570,25 @@
   .res-back-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.6);color:var(--paper)}
   .res-wrap.res-tap{cursor:pointer;transition:opacity .15s}
   .res-wrap.res-tap:hover{opacity:.72}
+  @keyframes resBtnPulse{
+    0%,100%{box-shadow:0 2px 8px rgba(244,157,32,.35)}
+    50%{box-shadow:0 3px 18px rgba(244,157,32,.65)}
+  }
   .res-tap-hint{
-    font-size:.6em;background:var(--orange);color:var(--paper);
-    padding:.15em .5em;border-radius:4px;margin-left:.5em;vertical-align:middle;
+    font-size:.72em;font-weight:900;white-space:nowrap;
+    padding:.28em .78em;border-radius:5px;
+    margin-left:.6em;vertical-align:middle;display:inline-block;
+  }
+  .res-tap-hint.featured{
+    background:var(--orange);color:var(--paper);
+    box-shadow:0 2px 8px rgba(244,157,32,.35);
+    animation:resBtnPulse 2s ease infinite;
+  }
+  .res-tap-hint.subtle{
+    background:transparent;
+    border:1.5px solid rgba(12,87,163,.28);
+    color:rgba(12,87,163,.5);
+    font-size:.65em;
   }
 </style>
 </head>
@@ -927,18 +943,24 @@
     SCHEDULE.forEach((s,i)=>{
       if(nextIdx===-1 && !isPast(s.jissi)) nextIdx=i;
     });
+    let latestResIdx = -1;
+    SCHEDULE.forEach((s,i)=>{
+      const o=classes[(idx+i+1)%classes.length];
+      if(BATTLE_RESULTS[s.no]&&BATTLE_RESULTS[s.no][name]&&BATTLE_RESULTS[s.no][o]) latestResIdx=i;
+    });
     SCHEDULE.forEach((s,i)=>{
       const opp=classes[(idx+i+1)%classes.length];
       const card=document.createElement('div');
       card.className='card'+(i===nextIdx?' next':'');
       const hasRes=BATTLE_RESULTS[s.no]&&BATTLE_RESULTS[s.no][name]&&BATTLE_RESULTS[s.no][opp];
+      const btnCls=i===latestResIdx?'featured':'subtle';
       card.innerHTML=`
         ${i===nextIdx?'<span class="badge">NEXT</span>':''}
         <div class="test-no">TEST<span class="num">${s.no}</span></div>
         <div class="opp-wrap"><span class="vs">VS</span><span class="opp">${opp}</span></div>
         <div class="dates"><span class="lbl">実施</span>${s.jissi}</div>
         ${hasRes
-          ? `<div class="dates res-wrap res-tap" onclick="openResult('${s.no}','${opp}')"><span class="lbl">結果</span>${s.hapyo}<span class="res-tap-hint">▶ 見る</span></div>`
+          ? `<div class="dates res-wrap res-tap" onclick="openResult('${s.no}','${opp}')"><span class="lbl">結果</span>${s.hapyo}<span class="res-tap-hint ${btnCls}">結果を見る</span></div>`
           : `<div class="dates res-wrap"><span class="lbl">結果</span>${s.hapyo}</div>`
         }`;
       wrap.appendChild(card);
