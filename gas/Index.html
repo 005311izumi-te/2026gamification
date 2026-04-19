@@ -465,39 +465,45 @@
     color:var(--orange);line-height:1;
     animation:countNum .85s ease forwards;
   }
-  /* Phase 3: battle arena */
-  #resPhase3{gap:1.8vh}
-  .battle-arena{
-    display:flex;align-items:center;gap:3.5vw;flex-shrink:0;
+  /* Phase 3: battle arena — 3-column row layout */
+  #resPhase3{
+    flex-direction:row;align-items:center;
+    padding:2vh 1.5vw;gap:0;
   }
-  .battle-side{display:flex;flex-direction:column;align-items:center;gap:.8vh}
+  .battle-side{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:1.2vh;
+  }
   .teacher-photo{
-    width:clamp(70px,9vw,118px);height:clamp(70px,9vw,118px);
-    border-radius:50%;border:2.5px dashed rgba(255,255,255,.28);
+    width:clamp(90px,15vw,190px);height:clamp(90px,15vw,190px);
+    border-radius:50%;border:3px dashed rgba(255,255,255,.28);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:.3vh;background:rgba(255,255,255,.04);overflow:hidden;
-    transition:border-color .5s,border-style .5s,background .5s,box-shadow .5s;
+    gap:.4vh;background:rgba(255,255,255,.04);overflow:hidden;
+    transition:border-color .6s,border-style .6s,background .6s,box-shadow .6s;
   }
   .teacher-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
   .teacher-photo.winner{
     border-color:var(--orange);border-style:solid;
     background:rgba(244,157,32,.12);
-    box-shadow:0 0 24px rgba(244,157,32,.4);
+    box-shadow:0 0 32px rgba(244,157,32,.45);
   }
-  .photo-placeholder{font-size:clamp(20px,3vw,36px);opacity:.3}
-  .photo-hint{font-size:clamp(7px,.7vw,10px);color:rgba(255,255,255,.28);font-weight:700;text-align:center;line-height:1.3}
+  .photo-placeholder{font-size:clamp(28px,4.5vw,58px);opacity:.28}
+  .photo-hint{font-size:clamp(7px,.7vw,10px);color:rgba(255,255,255,.25);font-weight:700;text-align:center;line-height:1.4}
   .battle-cls-name{
-    font-size:clamp(14px,1.8vw,24px);font-weight:900;
-    color:var(--paper);letter-spacing:.04em;
+    font-size:clamp(13px,1.7vw,22px);font-weight:900;
+    color:var(--paper);letter-spacing:.04em;text-align:center;
+  }
+  .battle-center{
+    flex:0 1 auto;display:flex;flex-direction:column;
+    align-items:center;gap:1.4vh;
+    width:min(380px,52vw);
   }
   .battle-vs-txt{
-    font-size:clamp(20px,4vw,52px);font-weight:900;
-    color:rgba(255,255,255,.16);letter-spacing:.2em;flex-shrink:0;
+    font-size:clamp(18px,3.2vw,44px);font-weight:900;
+    color:rgba(255,255,255,.15);letter-spacing:.2em;flex-shrink:0;
   }
   /* Subject result rows */
   .subj-results{
-    display:flex;flex-direction:column;gap:1vh;
-    width:min(460px,86vw);
+    display:flex;flex-direction:column;gap:.9vh;width:100%;
   }
   @keyframes subjRowIn{
     0%{opacity:0;transform:translateY(16px)}
@@ -723,26 +729,26 @@
     <span class="res-count" id="resCount">3</span>
   </div>
   <div id="resPhase3" class="res-phase">
-    <div class="battle-arena">
-      <div class="battle-side">
-        <div class="teacher-photo" id="myPhoto">
-          <span class="photo-placeholder">👤</span>
-          <span class="photo-hint">先生の<br>写真</span>
-        </div>
-        <div class="battle-cls-name" id="myClsName"></div>
+    <div class="battle-side">
+      <div class="teacher-photo" id="myPhoto">
+        <span class="photo-placeholder">👤</span>
+        <span class="photo-hint">先生の<br>写真</span>
       </div>
-      <div class="battle-vs-txt">VS</div>
-      <div class="battle-side">
-        <div class="teacher-photo" id="oppPhoto">
-          <span class="photo-placeholder">👤</span>
-          <span class="photo-hint">先生の<br>写真</span>
-        </div>
-        <div class="battle-cls-name" id="oppClsName"></div>
-      </div>
+      <div class="battle-cls-name" id="myClsName"></div>
     </div>
-    <div class="subj-results" id="subjResults"></div>
-    <div class="battle-verdict" id="battleVerdict"></div>
-    <button class="res-back-btn" id="resBtnBack" style="opacity:0;pointer-events:none" onclick="show('match')">← 対戦表に戻る</button>
+    <div class="battle-center">
+      <div class="battle-vs-txt">VS</div>
+      <div class="subj-results" id="subjResults"></div>
+      <div class="battle-verdict" id="battleVerdict"></div>
+      <button class="res-back-btn" id="resBtnBack" style="opacity:0;pointer-events:none" onclick="show('match')">← 対戦表に戻る</button>
+    </div>
+    <div class="battle-side">
+      <div class="teacher-photo" id="oppPhoto">
+        <span class="photo-placeholder">👤</span>
+        <span class="photo-hint">先生の<br>写真</span>
+      </div>
+      <div class="battle-cls-name" id="oppClsName"></div>
+    </div>
   </div>
 </section>
 
@@ -880,7 +886,7 @@
     document.getElementById('subjResults').innerHTML = subjData.map((s,i) => `
       <div class="subj-row-res" id="srow${i}">
         <div class="subj-pct-cell" id="mpc${i}">
-          <span class="subj-pct-num" id="mpn${i}">${s.mp}%</span>
+          <span class="subj-pct-num" id="mpn${i}">0%</span>
           <span class="subj-pct-crown" id="mpcr${i}">🏆</span>
         </div>
         <div class="subj-center">
@@ -888,7 +894,7 @@
           <div class="subj-name-lbl">${s.label}</div>
         </div>
         <div class="subj-pct-cell" id="opc${i}">
-          <span class="subj-pct-num" id="opn${i}">${s.op}%</span>
+          <span class="subj-pct-num" id="opn${i}">0%</span>
           <span class="subj-pct-crown" id="opcr${i}">🏆</span>
         </div>
       </div>`).join('');
@@ -927,13 +933,36 @@
     tick();
   }
 
+  function countUp(el, target, duration) {
+    const start = performance.now();
+    function frame(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target) + '%';
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
   function revealSubjects() {
     const { subjData, overall } = window._resSeq;
-    const INTERVAL = 1300;
+    const INTERVAL = 2400;   // 間隔：各科目の登場間隔
+    const COUNT_DELAY = 300; // 行が出てからカウント開始までの待ち
+    const COUNT_DUR  = 1100; // カウントアップにかける時間
+    const WIN_DELAY  = COUNT_DELAY + COUNT_DUR + 400; // 勝敗ハイライトまでの待ち
+
     subjData.forEach((s, i) => {
+      const base = i * INTERVAL;
+      // 行スライドイン
       setTimeout(() => {
         document.getElementById(`srow${i}`).classList.add('show');
-      }, i * INTERVAL);
+      }, base);
+      // カウントアップ（両者同時に）
+      setTimeout(() => {
+        countUp(document.getElementById(`mpn${i}`), s.mp, COUNT_DUR);
+        countUp(document.getElementById(`opn${i}`), s.op, COUNT_DUR);
+      }, base + COUNT_DELAY);
+      // 勝敗ハイライト
       setTimeout(() => {
         if (s.winner === 'my') {
           document.getElementById(`mpc${i}`).classList.add('win');
@@ -946,9 +975,10 @@
           document.getElementById(`opcr${i}`).classList.add('show');
           document.getElementById(`mpc${i}`).classList.add('lose');
         }
-      }, i * INTERVAL + 700);
+      }, base + WIN_DELAY);
     });
-    const afterSubjs = subjData.length * INTERVAL + 400;
+
+    const afterSubjs = (subjData.length - 1) * INTERVAL + WIN_DELAY + 600;
     setTimeout(() => {
       const v = document.getElementById('battleVerdict');
       v.className = `battle-verdict ${overall} show`;
@@ -961,7 +991,7 @@
       btn.style.transition = 'opacity .4s';
       btn.style.opacity = '1';
       btn.style.pointerEvents = 'auto';
-    }, afterSubjs + 700);
+    }, afterSubjs + 800);
   }
 
   function isPast(range){
