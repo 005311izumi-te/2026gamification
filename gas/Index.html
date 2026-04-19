@@ -415,6 +415,106 @@
     .card{grid-template-columns:auto 1fr;gap:4vw}
     .dates{grid-column:1/-1;text-align:left}
   }
+
+  /* ===== Result Reveal Screen ===== */
+  #result{
+    justify-content:center;align-items:center;
+    background:#050d1e;overflow:hidden;
+  }
+  #result::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse at 30% 35%,rgba(32,176,228,.18),transparent 50%),
+      radial-gradient(ellipse at 72% 65%,rgba(244,157,32,.14),transparent 50%);
+  }
+  .res-phase{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    justify-content:center;align-items:center;gap:3vh;
+    pointer-events:none;opacity:0;transition:opacity .35s;z-index:1;
+  }
+  .res-phase.res-active{opacity:1;pointer-events:auto}
+  .res-sub{
+    font-size:clamp(12px,1.3vw,16px);font-weight:800;
+    color:rgba(255,255,255,.45);letter-spacing:.25em;
+  }
+  @keyframes resQIn{
+    0%{opacity:0;transform:translateY(28px) scale(.88)}
+    60%{opacity:1;transform:translateY(-4px) scale(1.03)}
+    100%{opacity:1;transform:translateY(0) scale(1)}
+  }
+  @keyframes suspensePulse{
+    0%,100%{opacity:1}
+    50%{opacity:.7;text-shadow:0 0 28px rgba(255,255,255,.2)}
+  }
+  .res-question{
+    font-size:clamp(22px,3.8vw,50px);font-weight:900;color:var(--paper);
+    letter-spacing:.04em;text-align:center;line-height:1.45;
+  }
+  #resPhase1.res-active .res-question{
+    animation:resQIn .9s cubic-bezier(.2,1.2,.3,1) .1s both,
+              suspensePulse 2.4s ease 1.2s infinite;
+  }
+  @keyframes countNum{
+    0%  {opacity:0;transform:scale(1.8);filter:blur(10px)}
+    28% {opacity:1;transform:scale(.96);filter:blur(0)}
+    72% {opacity:1;transform:scale(1)}
+    100%{opacity:0;transform:scale(.6);filter:blur(6px)}
+  }
+  .res-count{
+    font-size:clamp(120px,24vw,260px);font-weight:900;
+    color:var(--orange);line-height:1;
+    animation:countNum .85s ease forwards;
+  }
+  @keyframes verdictPop{
+    0%{opacity:0;transform:scale(.2) rotate(-12deg)}
+    55%{opacity:1;transform:scale(1.22) rotate(3deg)}
+    75%{transform:scale(.96) rotate(-1deg)}
+    100%{opacity:1;transform:scale(1) rotate(0)}
+  }
+  .res-verdict{
+    font-size:clamp(68px,14vw,160px);font-weight:900;letter-spacing:.1em;line-height:1;
+  }
+  .res-verdict.win{color:var(--orange)}
+  .res-verdict.lose{color:var(--cyan)}
+  .res-verdict.draw{color:#8ab}
+  #resPhase3.res-active .res-verdict{
+    animation:verdictPop .7s cubic-bezier(.2,1.5,.3,1) .05s both;
+  }
+  .res-subjs{display:flex;gap:2.8vw;margin-top:.8vh}
+  .res-sj{display:flex;flex-direction:column;align-items:center;gap:.5vh}
+  .res-sj-icon{
+    width:clamp(40px,4.2vw,58px);height:clamp(40px,4.2vw,58px);
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(14px,1.5vw,19px);font-weight:900;color:var(--paper);
+  }
+  .res-sj-icon.ja{background:var(--orange)}
+  .res-sj-icon.en{background:var(--cyan)}
+  .res-sj-icon.ma{background:var(--navy);border:2px solid rgba(255,255,255,.2)}
+  .res-sj-lbl{font-size:clamp(10px,.9vw,12px);color:rgba(255,255,255,.5);font-weight:700}
+  .res-sj-mark{font-size:clamp(20px,2.6vw,34px);font-weight:900;line-height:1}
+  .res-sj-mark.w{color:var(--orange)}
+  .res-sj-mark.l{color:#5ab0ce}
+  .res-sj-mark.d{color:#8ab}
+  @keyframes sjIn{
+    0%{opacity:0;transform:translateY(20px)}
+    100%{opacity:1;transform:translateY(0)}
+  }
+  #resPhase3.res-active .res-sj:nth-child(1){animation:sjIn .4s ease .45s both}
+  #resPhase3.res-active .res-sj:nth-child(2){animation:sjIn .4s ease .65s both}
+  #resPhase3.res-active .res-sj:nth-child(3){animation:sjIn .4s ease .85s both}
+  .res-back-btn{
+    background:transparent;border:2px solid rgba(255,255,255,.3);
+    color:rgba(255,255,255,.6);border-radius:8px;
+    padding:.8vh 1.8vw;font-size:clamp(12px,1.2vw,15px);font-weight:800;
+    cursor:pointer;transition:all .15s;margin-top:2vh;
+  }
+  .res-back-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.6);color:var(--paper)}
+  .res-wrap.res-tap{cursor:pointer;transition:opacity .15s}
+  .res-wrap.res-tap:hover{opacity:.72}
+  .res-tap-hint{
+    font-size:.6em;background:var(--orange);color:var(--paper);
+    padding:.15em .5em;border-radius:4px;margin-left:.5em;vertical-align:middle;
+  }
 </style>
 </head>
 <body>
@@ -560,7 +660,30 @@
   <div class="matches" id="matches"></div>
 </section>
 
+<!-- ===== Result Reveal Screen ===== -->
+<section id="result" class="screen">
+  <div id="resPhase1" class="res-phase res-active">
+    <div class="res-sub" id="resLabel"></div>
+    <div class="res-question">今回のバトル結果は、、、？</div>
+  </div>
+  <div id="resPhase2" class="res-phase">
+    <span class="res-count" id="resCount">3</span>
+  </div>
+  <div id="resPhase3" class="res-phase">
+    <div class="res-sub" id="resVsLabel"></div>
+    <div class="res-verdict" id="resVerdict"></div>
+    <div class="res-subjs" id="resSubjs"></div>
+    <button class="res-back-btn" onclick="show('match')">← 対戦表に戻る</button>
+  </div>
+</section>
+
 <script>
+  // 試合結果データ（結果が出たら追記）
+  // 形式: テスト番号 → { ja, en, ma: 勝った教室名 }
+  // 例: "①": { ja:"五位堂", en:"学園前", ma:"五位堂" }
+  const BATTLE_RESULTS = {
+  };
+
   const CLASSES_BY_GRADE = {
     5: ["五位堂","京田辺","八木","奈良","学園前","木津南","桜井","王寺","生駒","登美ヶ丘","神宮","西大寺","郡山","高の原","高田"],
     6: ["五位堂","京田辺","八木","奈良","学園前","木津南","桜井","王寺","生駒","登美ヶ丘","神宮","西大寺","郡山","高の原","高田"],
@@ -638,15 +761,80 @@
       const opp=classes[(idx+i+1)%classes.length];
       const card=document.createElement('div');
       card.className='card'+(i===nextIdx?' next':'');
+      const hasRes=BATTLE_RESULTS[s.no];
       card.innerHTML=`
         ${i===nextIdx?'<span class="badge">NEXT</span>':''}
         <div class="test-no">TEST<span class="num">${s.no}</span></div>
         <div class="opp-wrap"><span class="vs">VS</span><span class="opp">${opp}</span></div>
         <div class="dates"><span class="lbl">実施</span>${s.jissi}</div>
-        <div class="dates res-wrap"><span class="lbl">結果</span>${s.hapyo}</div>`;
+        ${hasRes
+          ? `<div class="dates res-wrap res-tap" onclick="openResult('${s.no}','${opp}')"><span class="lbl">結果</span>${s.hapyo}<span class="res-tap-hint">▶ 見る</span></div>`
+          : `<div class="dates res-wrap"><span class="lbl">結果</span>${s.hapyo}</div>`
+        }`;
       wrap.appendChild(card);
     });
     show('match');
+  }
+
+  function openResult(testNo, oppName) {
+    const myName = document.getElementById('myCls').textContent;
+    const r = BATTLE_RESULTS[testNo];
+    document.getElementById('resLabel').textContent = `テスト${testNo}`;
+    document.getElementById('resVsLabel').textContent = `VS ${oppName}`;
+
+    const keys = ['ja','en','ma'];
+    const labels = {ja:'国語',en:'英語',ma:'算数'};
+    const iconCls = {ja:'ja',en:'en',ma:'ma'};
+    const iconTxt = {ja:'国',en:'英',ma:'算'};
+    const results = keys.map(k => {
+      if (!r || !r[k]) return 'tbd';
+      return r[k]===myName ? 'win' : r[k]===oppName ? 'lose' : 'draw';
+    });
+    const wins = results.filter(x=>x==='win').length;
+    const loses = results.filter(x=>x==='lose').length;
+    const overall = wins>=2 ? 'win' : loses>=2 ? 'lose' : 'draw';
+
+    const v = document.getElementById('resVerdict');
+    v.className = 'res-verdict ' + overall;
+    v.textContent = overall==='win' ? 'WIN' : overall==='lose' ? 'LOSE' : 'DRAW';
+
+    document.getElementById('resSubjs').innerHTML = keys.map((k,i) => {
+      const res = results[i];
+      const mark = res==='win'?'○':res==='lose'?'✕':res==='tbd'?'—':'△';
+      const mc = res==='win'?'w':res==='lose'?'l':'d';
+      return `<div class="res-sj">
+        <div class="res-sj-icon ${iconCls[k]}">${iconTxt[k]}</div>
+        <div class="res-sj-lbl">${labels[k]}</div>
+        <div class="res-sj-mark ${mc}">${mark}</div>
+      </div>`;
+    }).join('');
+
+    resSetPhase(1);
+    show('result');
+    setTimeout(startCountdown, 2200);
+  }
+
+  function resSetPhase(n) {
+    [1,2,3].forEach(i => {
+      const el = document.getElementById(`resPhase${i}`);
+      el.classList.remove('res-active');
+      if (i===n) { void el.offsetWidth; el.classList.add('res-active'); }
+    });
+  }
+
+  function startCountdown() {
+    resSetPhase(2);
+    let n = 3;
+    const el = document.getElementById('resCount');
+    function tick() {
+      el.textContent = n;
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = 'countNum .85s ease forwards';
+      if (n > 1) { n--; setTimeout(tick, 870); }
+      else { setTimeout(()=>resSetPhase(3), 870); }
+    }
+    tick();
   }
 
   function isPast(range){
