@@ -465,48 +465,101 @@
     color:var(--orange);line-height:1;
     animation:countNum .85s ease forwards;
   }
+  /* Phase 3: battle arena */
+  #resPhase3{gap:1.8vh}
+  .battle-arena{
+    display:flex;align-items:center;gap:3.5vw;flex-shrink:0;
+  }
+  .battle-side{display:flex;flex-direction:column;align-items:center;gap:.8vh}
+  .teacher-photo{
+    width:clamp(70px,9vw,118px);height:clamp(70px,9vw,118px);
+    border-radius:50%;border:2.5px dashed rgba(255,255,255,.28);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:.3vh;background:rgba(255,255,255,.04);overflow:hidden;
+    transition:border-color .5s,border-style .5s,background .5s,box-shadow .5s;
+  }
+  .teacher-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+  .teacher-photo.winner{
+    border-color:var(--orange);border-style:solid;
+    background:rgba(244,157,32,.12);
+    box-shadow:0 0 24px rgba(244,157,32,.4);
+  }
+  .photo-placeholder{font-size:clamp(20px,3vw,36px);opacity:.3}
+  .photo-hint{font-size:clamp(7px,.7vw,10px);color:rgba(255,255,255,.28);font-weight:700;text-align:center;line-height:1.3}
+  .battle-cls-name{
+    font-size:clamp(14px,1.8vw,24px);font-weight:900;
+    color:var(--paper);letter-spacing:.04em;
+  }
+  .battle-vs-txt{
+    font-size:clamp(20px,4vw,52px);font-weight:900;
+    color:rgba(255,255,255,.16);letter-spacing:.2em;flex-shrink:0;
+  }
+  /* Subject result rows */
+  .subj-results{
+    display:flex;flex-direction:column;gap:1vh;
+    width:min(460px,86vw);
+  }
+  @keyframes subjRowIn{
+    0%{opacity:0;transform:translateY(16px)}
+    100%{opacity:1;transform:translateY(0)}
+  }
+  .subj-row-res{
+    display:grid;grid-template-columns:1fr auto 1fr;
+    align-items:center;gap:1.2vw;
+    opacity:0;
+  }
+  .subj-row-res.show{animation:subjRowIn .5s cubic-bezier(.2,1.2,.3,1) both}
+  .subj-pct-cell{
+    display:flex;flex-direction:column;align-items:center;
+    padding:.65vh .8vw;border-radius:10px;
+    background:rgba(255,255,255,.06);border:1.5px solid transparent;
+    transition:background .5s,border-color .5s,box-shadow .5s,opacity .4s;
+  }
+  .subj-pct-cell.win{
+    background:rgba(244,157,32,.18);border-color:var(--orange);
+    box-shadow:0 0 14px rgba(244,157,32,.28);
+  }
+  .subj-pct-cell.lose{opacity:.45}
+  .subj-pct-num{
+    font-size:clamp(20px,3vw,40px);font-weight:900;
+    color:var(--paper);line-height:1;transition:color .5s;
+  }
+  .subj-pct-num.win{color:var(--orange)}
+  .subj-pct-crown{
+    font-size:clamp(12px,1.4vw,18px);line-height:1.2;
+    opacity:0;transition:opacity .4s .1s;
+  }
+  .subj-pct-crown.show{opacity:1}
+  .subj-center{display:flex;flex-direction:column;align-items:center;gap:.3vh}
+  .subj-icon-res{
+    width:clamp(32px,3.3vw,44px);height:clamp(32px,3.3vw,44px);
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(11px,1.2vw,16px);font-weight:900;color:var(--paper);
+  }
+  .subj-icon-res.ja{background:var(--orange)}
+  .subj-icon-res.en{background:var(--cyan)}
+  .subj-icon-res.ma{background:var(--navy);border:1.5px solid rgba(255,255,255,.2)}
+  .subj-name-lbl{font-size:clamp(8px,.8vw,11px);color:rgba(255,255,255,.4);font-weight:700}
+  /* Battle verdict */
   @keyframes verdictPop{
     0%{opacity:0;transform:scale(.2) rotate(-12deg)}
     55%{opacity:1;transform:scale(1.22) rotate(3deg)}
     75%{transform:scale(.96) rotate(-1deg)}
     100%{opacity:1;transform:scale(1) rotate(0)}
   }
-  .res-verdict{
-    font-size:clamp(68px,14vw,160px);font-weight:900;letter-spacing:.1em;line-height:1;
+  .battle-verdict{
+    font-size:clamp(54px,10.5vw,124px);font-weight:900;
+    letter-spacing:.12em;line-height:1;opacity:0;transition:opacity .2s;
   }
-  .res-verdict.win{color:var(--orange)}
-  .res-verdict.lose{color:var(--cyan)}
-  .res-verdict.draw{color:#8ab}
-  #resPhase3.res-active .res-verdict{
-    animation:verdictPop .7s cubic-bezier(.2,1.5,.3,1) .05s both;
-  }
-  .res-subjs{display:flex;gap:2.8vw;margin-top:.8vh}
-  .res-sj{display:flex;flex-direction:column;align-items:center;gap:.5vh}
-  .res-sj-icon{
-    width:clamp(40px,4.2vw,58px);height:clamp(40px,4.2vw,58px);
-    border-radius:50%;display:flex;align-items:center;justify-content:center;
-    font-size:clamp(14px,1.5vw,19px);font-weight:900;color:var(--paper);
-  }
-  .res-sj-icon.ja{background:var(--orange)}
-  .res-sj-icon.en{background:var(--cyan)}
-  .res-sj-icon.ma{background:var(--navy);border:2px solid rgba(255,255,255,.2)}
-  .res-sj-lbl{font-size:clamp(10px,.9vw,12px);color:rgba(255,255,255,.5);font-weight:700}
-  .res-sj-mark{font-size:clamp(20px,2.6vw,34px);font-weight:900;line-height:1}
-  .res-sj-mark.w{color:var(--orange)}
-  .res-sj-mark.l{color:#5ab0ce}
-  .res-sj-mark.d{color:#8ab}
-  @keyframes sjIn{
-    0%{opacity:0;transform:translateY(20px)}
-    100%{opacity:1;transform:translateY(0)}
-  }
-  #resPhase3.res-active .res-sj:nth-child(1){animation:sjIn .4s ease .45s both}
-  #resPhase3.res-active .res-sj:nth-child(2){animation:sjIn .4s ease .65s both}
-  #resPhase3.res-active .res-sj:nth-child(3){animation:sjIn .4s ease .85s both}
+  .battle-verdict.show{opacity:1;animation:verdictPop .7s cubic-bezier(.2,1.5,.3,1) both}
+  .battle-verdict.win{color:var(--orange)}
+  .battle-verdict.lose{color:var(--cyan)}
+  .battle-verdict.draw{color:#8ab}
   .res-back-btn{
     background:transparent;border:2px solid rgba(255,255,255,.3);
     color:rgba(255,255,255,.6);border-radius:8px;
     padding:.8vh 1.8vw;font-size:clamp(12px,1.2vw,15px);font-weight:800;
-    cursor:pointer;transition:all .15s;margin-top:2vh;
+    cursor:pointer;transition:all .15s;
   }
   .res-back-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.6);color:var(--paper)}
   .res-wrap.res-tap{cursor:pointer;transition:opacity .15s}
@@ -670,19 +723,37 @@
     <span class="res-count" id="resCount">3</span>
   </div>
   <div id="resPhase3" class="res-phase">
-    <div class="res-sub" id="resVsLabel"></div>
-    <div class="res-verdict" id="resVerdict"></div>
-    <div class="res-subjs" id="resSubjs"></div>
-    <button class="res-back-btn" onclick="show('match')">← 対戦表に戻る</button>
+    <div class="battle-arena">
+      <div class="battle-side">
+        <div class="teacher-photo" id="myPhoto">
+          <span class="photo-placeholder">👤</span>
+          <span class="photo-hint">先生の<br>写真</span>
+        </div>
+        <div class="battle-cls-name" id="myClsName"></div>
+      </div>
+      <div class="battle-vs-txt">VS</div>
+      <div class="battle-side">
+        <div class="teacher-photo" id="oppPhoto">
+          <span class="photo-placeholder">👤</span>
+          <span class="photo-hint">先生の<br>写真</span>
+        </div>
+        <div class="battle-cls-name" id="oppClsName"></div>
+      </div>
+    </div>
+    <div class="subj-results" id="subjResults"></div>
+    <div class="battle-verdict" id="battleVerdict"></div>
+    <button class="res-back-btn" id="resBtnBack" style="opacity:0;pointer-events:none" onclick="show('match')">← 対戦表に戻る</button>
   </div>
 </section>
 
 <script>
   // 試合結果データ（結果が出たら追記）
-  // 形式: テスト番号 → { ja, en, ma: 勝った教室名 }
-  // 例: "①": { ja:"五位堂", en:"学園前", ma:"五位堂" }
+  // 形式: テスト番号 → { 教室名: { ja, en, ma: 80点以上の割合(%) } }
   const BATTLE_RESULTS = {
-    "①": { ja:"五位堂", en:"学園前", ma:"五位堂" },
+    "①": {
+      "五位堂": { ja:72, en:58, ma:85 },
+      "京田辺": { ja:65, en:71, ma:78 },
+    },
   };
 
   const CLASSES_BY_GRADE = {
@@ -762,7 +833,7 @@
       const opp=classes[(idx+i+1)%classes.length];
       const card=document.createElement('div');
       card.className='card'+(i===nextIdx?' next':'');
-      const hasRes=BATTLE_RESULTS[s.no];
+      const hasRes=BATTLE_RESULTS[s.no]&&BATTLE_RESULTS[s.no][name]&&BATTLE_RESULTS[s.no][opp];
       card.innerHTML=`
         ${i===nextIdx?'<span class="badge">NEXT</span>':''}
         <div class="test-no">TEST<span class="num">${s.no}</span></div>
@@ -780,36 +851,49 @@
   function openResult(testNo, oppName) {
     const myName = document.getElementById('myCls').textContent;
     const r = BATTLE_RESULTS[testNo];
+    const myData = r[myName];
+    const oppData = r[oppName];
+
     document.getElementById('resLabel').textContent = `テスト${testNo}`;
-    document.getElementById('resVsLabel').textContent = `VS ${oppName}`;
+    document.getElementById('myClsName').textContent = myName;
+    document.getElementById('oppClsName').textContent = oppName;
+    document.getElementById('myPhoto').classList.remove('winner');
+    document.getElementById('oppPhoto').classList.remove('winner');
+    document.getElementById('battleVerdict').className = 'battle-verdict';
+    document.getElementById('battleVerdict').textContent = '';
+    const btn = document.getElementById('resBtnBack');
+    btn.style.opacity = '0'; btn.style.pointerEvents = 'none';
 
-    const keys = ['ja','en','ma'];
-    const labels = {ja:'国語',en:'英語',ma:'算数'};
-    const iconCls = {ja:'ja',en:'en',ma:'ma'};
-    const iconTxt = {ja:'国',en:'英',ma:'算'};
-    const results = keys.map(k => {
-      if (!r || !r[k]) return 'tbd';
-      return r[k]===myName ? 'win' : r[k]===oppName ? 'lose' : 'draw';
+    const subjDefs = [
+      {key:'ja', label:'国語', cls:'ja', icon:'国'},
+      {key:'en', label:'英語', cls:'en', icon:'英'},
+      {key:'ma', label:'算数', cls:'ma', icon:'算'},
+    ];
+    const subjData = subjDefs.map(s => {
+      const mp = myData[s.key], op = oppData[s.key];
+      const winner = mp > op ? 'my' : mp < op ? 'opp' : 'draw';
+      return {...s, mp, op, winner};
     });
-    const wins = results.filter(x=>x==='win').length;
-    const loses = results.filter(x=>x==='lose').length;
-    const overall = wins>=2 ? 'win' : loses>=2 ? 'lose' : 'draw';
+    const myWins = subjData.filter(s=>s.winner==='my').length;
+    const overall = myWins >= 2 ? 'win' : 'lose';
 
-    const v = document.getElementById('resVerdict');
-    v.className = 'res-verdict ' + overall;
-    v.textContent = overall==='win' ? 'WIN' : overall==='lose' ? 'LOSE' : 'DRAW';
+    document.getElementById('subjResults').innerHTML = subjData.map((s,i) => `
+      <div class="subj-row-res" id="srow${i}">
+        <div class="subj-pct-cell" id="mpc${i}">
+          <span class="subj-pct-num" id="mpn${i}">${s.mp}%</span>
+          <span class="subj-pct-crown" id="mpcr${i}">🏆</span>
+        </div>
+        <div class="subj-center">
+          <div class="subj-icon-res ${s.cls}">${s.icon}</div>
+          <div class="subj-name-lbl">${s.label}</div>
+        </div>
+        <div class="subj-pct-cell" id="opc${i}">
+          <span class="subj-pct-num" id="opn${i}">${s.op}%</span>
+          <span class="subj-pct-crown" id="opcr${i}">🏆</span>
+        </div>
+      </div>`).join('');
 
-    document.getElementById('resSubjs').innerHTML = keys.map((k,i) => {
-      const res = results[i];
-      const mark = res==='win'?'○':res==='lose'?'✕':res==='tbd'?'—':'△';
-      const mc = res==='win'?'w':res==='lose'?'l':'d';
-      return `<div class="res-sj">
-        <div class="res-sj-icon ${iconCls[k]}">${iconTxt[k]}</div>
-        <div class="res-sj-lbl">${labels[k]}</div>
-        <div class="res-sj-mark ${mc}">${mark}</div>
-      </div>`;
-    }).join('');
-
+    window._resSeq = { subjData, overall };
     resSetPhase(1);
     show('result');
     setTimeout(startCountdown, 2200);
@@ -833,9 +917,51 @@
       void el.offsetWidth;
       el.style.animation = 'countNum .85s ease forwards';
       if (n > 1) { n--; setTimeout(tick, 870); }
-      else { setTimeout(()=>resSetPhase(3), 870); }
+      else {
+        setTimeout(() => {
+          resSetPhase(3);
+          setTimeout(revealSubjects, 500);
+        }, 870);
+      }
     }
     tick();
+  }
+
+  function revealSubjects() {
+    const { subjData, overall } = window._resSeq;
+    const INTERVAL = 1300;
+    subjData.forEach((s, i) => {
+      setTimeout(() => {
+        document.getElementById(`srow${i}`).classList.add('show');
+      }, i * INTERVAL);
+      setTimeout(() => {
+        if (s.winner === 'my') {
+          document.getElementById(`mpc${i}`).classList.add('win');
+          document.getElementById(`mpn${i}`).classList.add('win');
+          document.getElementById(`mpcr${i}`).classList.add('show');
+          document.getElementById(`opc${i}`).classList.add('lose');
+        } else if (s.winner === 'opp') {
+          document.getElementById(`opc${i}`).classList.add('win');
+          document.getElementById(`opn${i}`).classList.add('win');
+          document.getElementById(`opcr${i}`).classList.add('show');
+          document.getElementById(`mpc${i}`).classList.add('lose');
+        }
+      }, i * INTERVAL + 700);
+    });
+    const afterSubjs = subjData.length * INTERVAL + 400;
+    setTimeout(() => {
+      const v = document.getElementById('battleVerdict');
+      v.className = `battle-verdict ${overall} show`;
+      v.textContent = overall === 'win' ? 'WIN' : 'LOSE';
+      if (overall === 'win') document.getElementById('myPhoto').classList.add('winner');
+      else document.getElementById('oppPhoto').classList.add('winner');
+    }, afterSubjs);
+    setTimeout(() => {
+      const btn = document.getElementById('resBtnBack');
+      btn.style.transition = 'opacity .4s';
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+    }, afterSubjs + 700);
   }
 
   function isPast(range){
