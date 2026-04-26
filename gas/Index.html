@@ -883,6 +883,35 @@
     };
   })();
 
+  const AUDIO_SFX = (function(){
+    var BASE = 'https://soundeffect-lab.info/sound/anime/mp3/';
+    var cache = {};
+    function get(name){
+      if(!cache[name]){
+        cache[name] = new Audio(BASE + name);
+        cache[name].preload = 'auto';
+      }
+      return cache[name];
+    }
+    function play(name){
+      var a = get(name);
+      a.currentTime = 0;
+      var p = a.play();
+      if(p) p.catch(function(){});
+    }
+    return {
+      preload: function(){
+        ['ban1.mp3','correct1.mp3','incorrect1.mp3','trumpet1.mp3','drum-japanese1.mp3','tin1.mp3'].forEach(get);
+      },
+      phase1:    function(){ play('drum-japanese1.mp3'); },
+      reveal:    function(){ play('ban1.mp3'); },
+      correct:   function(){ play('correct1.mp3'); },
+      incorrect: function(){ play('incorrect1.mp3'); },
+      win:       function(){ play('trumpet1.mp3'); },
+      lose:      function(){ play('tin1.mp3'); }
+    };
+  })();
+
   const BATTLE_RESULTS = {
     "①": {
       "五位堂": { ja:72, en:58, ma:85 },
@@ -1057,7 +1086,7 @@
         var item = subjData[index];
         setTimeout(function(){
           document.getElementById('srow' + index).classList.add('show');
-          SFX.reveal();
+          AUDIO_SFX.reveal();
         }, index * INTERVAL);
         setTimeout(function(){
           countUp(document.getElementById('mpn' + index), item.myPct, COUNT_DUR);
@@ -1068,12 +1097,12 @@
             document.getElementById('mpc' + index).classList.add('win');
             document.getElementById('opc' + index).classList.add('lose');
             document.getElementById('mpm' + index).classList.add('show');
-            SFX.subjectWin();
+            AUDIO_SFX.correct();
           }else if(item.winner === 'opp'){
             document.getElementById('opc' + index).classList.add('win');
             document.getElementById('mpc' + index).classList.add('lose');
             document.getElementById('opm' + index).classList.add('show');
-            SFX.subjectLose();
+            AUDIO_SFX.incorrect();
           }else{
             document.getElementById('mpm' + index).textContent = 'DRAW';
             document.getElementById('opm' + index).textContent = 'DRAW';
@@ -1092,10 +1121,10 @@
       document.getElementById('oppPhoto').classList.remove('winner');
       if(overallClass === 'win'){
         document.getElementById('myPhoto').classList.add('winner');
-        SFX.win();
+        AUDIO_SFX.win();
       }else if(overallClass === 'lose'){
         document.getElementById('oppPhoto').classList.add('winner');
-        SFX.lose();
+        AUDIO_SFX.lose();
       }
     }, afterSubjs);
     setTimeout(function(){
@@ -1169,6 +1198,7 @@
     let myData, oppData, subjDefs, subjData, myWins, oppWins, overallText, overallClass;
     if(!resultGroup || !resultGroup[myName] || !resultGroup[oppName]) return;
     SFX.unlock();
+    AUDIO_SFX.preload();
 
     myData = resultGroup[myName];
     oppData = resultGroup[oppName];
@@ -1238,6 +1268,7 @@
     };
     resSetPhase(1);
     show('result');
+    AUDIO_SFX.phase1();
     setTimeout(startCountdown, 1500);
   }
 
